@@ -83,7 +83,7 @@ export default function ChangePinModal({ visible, onClose }) {
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={cerrarYReiniciar}>
       <View style={styles.backdrop}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.sheetWrap}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.sheetWrap}>
           <View style={styles.sheet}>
             <View style={styles.handle} />
 

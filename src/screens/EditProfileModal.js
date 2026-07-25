@@ -142,7 +142,7 @@ export default function EditProfileModal({ visible, onClose }) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.header}>
           <Text style={styles.headerTitulo}>Editar perfil</Text>
           <Button label="Cerrar" variant="ghost" onPress={onClose} style={styles.headerBtn} />

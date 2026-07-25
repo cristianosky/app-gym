@@ -219,7 +219,7 @@ export default function RegisterScreen({ onVolver }) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.topBar}>
         <Button label="Atrás" icon="chevron-back" variant="ghost" onPress={atras} style={styles.back} />
       </View>
