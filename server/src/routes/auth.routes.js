@@ -21,12 +21,15 @@ authRouter.post(
     const datos = parseBody(registerSchema, req.body);
     const { user, token } = await authService.register(datos);
 
-    // La primera rutina se genera al vuelo: la persona entra a la app y ya
-    // tiene su plan listo, sin una pantalla de espera extra.
-    const completo = userRepo.findById(user.id);
-    const { plan, source, aviso } = await generateRoutine(completo);
+    // Responde de inmediato para que la app entre sin esperar a Gemini.
+    // La rutina se genera en background; el front la obtiene con GET /plans/routine
+    // y mientras tanto muestra "Estamos generando tu rutina...".
+    res.status(201).json({ ok: true, user, token, generandoRutina: true });
 
-    res.status(201).json({ ok: true, user, token, routine: { plan, source }, aviso });
+    const completo = userRepo.findById(user.id);
+    generateRoutine(completo).catch((err) =>
+      console.error('[registro] Error generando rutina en background:', err?.message ?? err),
+    );
   }),
 );
 
