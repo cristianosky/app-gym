@@ -7,17 +7,19 @@
  *
  * Orden de lo que se muestra como ejemplo:
  *   1. video local (funciona sin internet),
- *   2. video de YouTube (se carga solo al tocar, para no gastar datos),
- *   3. animación del movimiento (siempre disponible, sin conexión).
+ *   2. GIF local (funciona sin internet),
+ *   3. video de YouTube (se carga solo al tocar, para no gastar datos),
+ *   4. animación del movimiento (siempre disponible, sin conexión).
  */
 import React, { useState } from 'react';
-import { Modal, View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { Modal, View, Text, Image, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, alpha } from '../theme';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
 import VideoPlayer from './VideoPlayer';
 import Icon from './Icon';
 import { getLocalVideo } from '../data/localVideos';
+import { getLocalGif } from '../data/localGifs';
 
 const GROUP_LABEL = {
   pecho: 'Pecho', espalda: 'Espalda', pierna: 'Pierna', hombro: 'Hombro',
@@ -31,7 +33,8 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
 
   const accent = colors[exercise.group] || colors.primary;
   const videoLocal = getLocalVideo(exercise.localVideo);
-  const hayEjemplo = Boolean(videoLocal || exercise.video);
+  const gifLocal = getLocalGif(exercise.id);
+  const hayEjemplo = Boolean(videoLocal || gifLocal || exercise.video);
 
   const cerrar = () => {
     setMostrarVideo(false);
@@ -50,6 +53,10 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
               <View style={styles.videoHero}>
                 <LocalVideo source={videoLocal} controls contentFit="cover" />
               </View>
+            ) : gifLocal ? (
+              <View style={styles.videoHero}>
+                <Image source={gifLocal} style={styles.gifHero} resizeMode="cover" />
+              </View>
             ) : mostrarVideo ? (
               <View style={styles.videoWrap}>
                 <VideoPlayer videoId={exercise.video} query={`${exercise.name} técnica gimnasio`} />
@@ -60,7 +67,7 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
               </View>
             )}
 
-            {!videoLocal && !mostrarVideo && (
+            {!videoLocal && !gifLocal && !mostrarVideo && (
               <Pressable
                 onPress={() => setMostrarVideo(true)}
                 accessibilityRole="button"
@@ -204,6 +211,7 @@ const styles = StyleSheet.create({
 
   hero: { borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.md },
   videoHero: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: '#000', aspectRatio: 16 / 9, marginBottom: spacing.md },
+  gifHero: { width: '100%', height: '100%' },
   videoWrap: { marginBottom: spacing.md },
 
   verEjemplo: {

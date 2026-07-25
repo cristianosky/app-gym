@@ -4,12 +4,13 @@
  * Tocar el cuerpo de la tarjeta abre el detalle ampliado.
  */
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
 import Icon from './Icon';
 import { getLocalVideo } from '../data/localVideos';
+import { getLocalGif } from '../data/localGifs';
 
 const GROUP_LABEL = {
   pecho: 'Pecho', espalda: 'Espalda', pierna: 'Pierna', hombro: 'Hombro',
@@ -19,6 +20,7 @@ const GROUP_LABEL = {
 export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
   const accent = colors[exercise.group] || colors.primary;
   const localVideo = getLocalVideo(exercise.localVideo);
+  const localGif = getLocalGif(exercise.id);
 
   return (
     <Pressable
@@ -32,6 +34,8 @@ export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
       <View style={[styles.illu, { backgroundColor: colors.bg }]}>
         {localVideo ? (
           <LocalVideo source={localVideo} controls={false} contentFit="cover" />
+        ) : localGif ? (
+          <Image source={localGif} style={styles.gif} resizeMode="cover" />
         ) : (
           <ExerciseIllustration kind={exercise.illu} accent={accent} size={88} />
         )}
@@ -100,6 +104,7 @@ const styles = StyleSheet.create({
     width: 88, height: 88, borderRadius: radius.sm, overflow: 'hidden',
     alignItems: 'center', justifyContent: 'center', marginRight: spacing.md, marginLeft: spacing.xs,
   },
+  gif: { width: '100%', height: '100%' },
   info: { flex: 1, paddingRight: spacing.sm },
   name: { color: colors.text, fontSize: font.h3, fontFamily: family.bodySemi, marginBottom: 5 },
   strike: { textDecorationLine: 'line-through', color: colors.textMuted },
