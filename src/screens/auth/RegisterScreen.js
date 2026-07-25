@@ -254,32 +254,15 @@ export default function RegisterScreen({ onVolver }) {
   );
 }
 
-/** Espera mientras la IA arma la primera rutina. */
+/** Espera breve mientras se crea la cuenta en el servidor. */
 function PantallaGenerando({ nombre }) {
-  const pasos = [
-    'Revisando sus datos y objetivos',
-    'Escogiendo los ejercicios que le sirven',
-    'Repartiendo los grupos musculares en la semana',
-    'Ajustando series, repeticiones y descansos',
-  ];
-
   return (
     <View style={styles.esperaScreen}>
       <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.esperaTitulo}>Le estamos armando la rutina</Text>
+      <Text style={styles.esperaTitulo}>Creando su cuenta</Text>
       <Text style={styles.esperaTexto}>
-        {nombre ? `Un momento, ${nombre.split(' ')[0]}. ` : 'Un momento. '}
-        Esto se demora unos segundos.
+        {nombre ? `Un momento, ${nombre.split(' ')[0]}.` : 'Un momento.'}
       </Text>
-
-      <View style={styles.esperaLista}>
-        {pasos.map((texto) => (
-          <View key={texto} style={styles.esperaItem}>
-            <Icon name="ellipse" size={7} color={colors.primary} />
-            <Text style={styles.esperaItemText}>{texto}</Text>
-          </View>
-        ))}
-      </View>
     </View>
   );
 }

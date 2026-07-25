@@ -71,9 +71,11 @@ export function PlanProvider({ children }) {
   const [hidratado, setHidratado] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState(null);
+  const [generandoRutina, setGenerandoRutina] = useState(false);
 
   // Evita disparar varias sincronizaciones a la vez.
   const sincronizando = useRef(false);
+  const pollingRutina = useRef(null);
 
   // --- Persistencia local -------------------------------------------------
 
@@ -107,6 +109,30 @@ export function PlanProvider({ children }) {
 
   // --- Descarga desde el servidor ----------------------------------------
 
+  const detenerPolling = useCallback(() => {
+    if (pollingRutina.current) {
+      clearInterval(pollingRutina.current);
+      pollingRutina.current = null;
+    }
+  }, []);
+
+  const iniciarPolling = useCallback(() => {
+    if (pollingRutina.current) return;
+    pollingRutina.current = setInterval(async () => {
+      try {
+        const res = await endpoints.rutina.obtener();
+        if (res.routine?.plan) {
+          setRutina(normalizarPlan(res.routine.plan));
+          setOrigenRutina(res.routine.source);
+          setGenerandoRutina(false);
+          detenerPolling();
+        }
+      } catch {
+        // Sin conexión: seguir intentando en el próximo tick.
+      }
+    }, 4000);
+  }, [detenerPolling]);
+
   const descargar = useCallback(async () => {
     if (!autenticado) return;
     setCargando(true);
@@ -120,6 +146,12 @@ export function PlanProvider({ children }) {
       if (resRutina.routine?.plan) {
         setRutina(normalizarPlan(resRutina.routine.plan));
         setOrigenRutina(resRutina.routine.source);
+        setGenerandoRutina(false);
+        detenerPolling();
+      } else {
+        // La rutina aún se está generando en background: arrancar polling.
+        setGenerandoRutina(true);
+        iniciarPolling();
       }
 
       const desdeServidor = {};
@@ -139,7 +171,10 @@ export function PlanProvider({ children }) {
     } finally {
       setCargando(false);
     }
-  }, [autenticado]);
+  }, [autenticado, iniciarPolling, detenerPolling]);
+
+  // Limpia el polling al desmontar el provider.
+  useEffect(() => () => detenerPolling(), [detenerPolling]);
 
   useEffect(() => {
     if (hidratado && autenticado) descargar();
@@ -153,9 +188,11 @@ export function PlanProvider({ children }) {
       setComidas(null);
       setProgreso({});
       setOverrides({});
+      setGenerandoRutina(false);
+      detenerPolling();
       AsyncStorage.removeItem(CLAVE_CACHE).catch(() => {});
     }
-  }, [autenticado, hidratado]);
+  }, [autenticado, hidratado, detenerPolling]);
 
   // --- Sincronización del progreso ---------------------------------------
 
@@ -405,6 +442,7 @@ export function PlanProvider({ children }) {
       hidratado,
       cargando,
       error,
+      generandoRutina,
       tieneRutina: Boolean(rutina),
       nombre: user?.name ?? '',
       getDay,
@@ -420,7 +458,7 @@ export function PlanProvider({ children }) {
       streak,
     }),
     [
-      rutina, origenRutina, comidas, hidratado, cargando, error, user,
+      rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
       regenerarRutina, cargarComidas, descargar, weekStats, streak,
     ],

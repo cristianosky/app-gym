@@ -12,8 +12,8 @@ export const auth = {
   /** Paso 1 del ingreso: ¿existe este usuario? */
   verificarUsuario: (username) => api.post('/api/auth/check-username', { username }, { auth: false }),
 
-  /** Crea la cuenta y devuelve token + primera rutina (tarda: genera con IA). */
-  registrar: (datos) => api.post('/api/auth/register', datos, { auth: false, timeout: TIMEOUTS.ia }),
+  /** Crea la cuenta y devuelve el token. La rutina se genera en background. */
+  registrar: (datos) => api.post('/api/auth/register', datos, { auth: false }),
 
   ingresar: (username, pin) => api.post('/api/auth/login', { username, pin }, { auth: false }),
 };

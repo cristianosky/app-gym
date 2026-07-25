@@ -6,14 +6,14 @@
  * no un mensaje de error a secas.
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { colors, spacing, font, family, alpha } from '../theme';
 import Icon from './Icon';
 import Button from './Button';
 import { usePlan } from '../store/PlanStore';
 
 export default function SinRutina() {
-  const { regenerarRutina, descargar, cargando } = usePlan();
+  const { regenerarRutina, descargar, cargando, generandoRutina } = usePlan();
   const [error, setError] = useState(null);
 
   const reintentar = async () => {
@@ -25,6 +25,18 @@ export default function SinRutina() {
       setError(err.message);
     }
   };
+
+  if (generandoRutina) {
+    return (
+      <View style={styles.screen}>
+        <ActivityIndicator size="large" color={colors.primary} style={styles.spinner} />
+        <Text style={styles.title}>Estamos preparando su rutina</Text>
+        <Text style={styles.text}>
+          El asistente está armando su plan personalizado. Esto toma unos segundos.
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.screen}>
@@ -77,4 +89,5 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   boton: { alignSelf: 'stretch' },
+  spinner: { marginBottom: spacing.lg },
 });
