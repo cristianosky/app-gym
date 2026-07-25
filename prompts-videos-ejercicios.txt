@@ -1,0 +1,172 @@
+=====================================================================
+ PROMPTS PARA VIDEOS DE EJERCICIOS - "Mi Entrenamiento"
+=====================================================================
+ - 34 ejercicios unicos (los que se repiten en varios dias van 1 sola vez).
+ - Cada prompt es autonomo: copialo y pegalo tal cual en la IA (Meta AI, Sora, Veo, Kling...).
+ - TODOS llevan el MISMO personaje al inicio para que se vea parecido en cada video.
+ - Para integrarlo en la app: guarda el .mp4 en assets/videos/ con el NOMBRE indicado,
+   registralo en src/data/localVideos.js con su CLAVE y agrega localVideo:'clave' en routine.js.
+
+ CONSEJO DE CONSISTENCIA:
+   Lo mas fiable es generar UNA imagen del personaje y luego "Animar" esa misma imagen
+   para cada ejercicio. Si usas solo texto, no cambies ni una palabra del bloque de personaje.
+
+---------------------------------------------------------------------
+ PERSONAJE BASE (va incluido en cada prompt de abajo)
+---------------------------------------------------------------------
+ Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara,
+ pelo negro corto, barba corta recortada, sin tatuajes. Lleva camiseta deportiva negra
+ ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos.
+ Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16,
+ movimiento lento y controlado en bucle, sin texto ni logos.
+
+
+=====================================================================
+ COMPARTIDOS (calentamiento y estiramiento de todos los dias)
+=====================================================================
+
+[01] CLAVE: calentamiento   ARCHIVO: calentamiento.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: movilidad articular dinamica y trote suave para calentar (circulos de hombros, rotacion de cadera y rodillas).
+
+[02] CLAVE: estiramiento   ARCHIVO: estiramiento-final.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: estiramientos estaticos suaves de vuelta a la calma, manteniendo cada postura sin rebotes.
+
+
+=====================================================================
+ DIA 1 - PECHO + TRICEPS
+=====================================================================
+
+[03] CLAVE: press-pecho   ARCHIVO: press-pecho-maquina.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: press de pecho en maquina sentado, empuja los agarres al frente extendiendo los brazos y vuelve despacio.
+
+[04] CLAVE: press-inclinado   ARCHIVO: press-inclinado-mancuernas.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: press inclinado con mancuernas en banco a 45 grados, sube juntando ligeramente las mancuernas y baja hasta el pecho.
+
+[05] CLAVE: aperturas-pecdeck   ARCHIVO: aperturas-pecdeck.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: aperturas en maquina Pec Deck, codos fijos, junta los brazos al frente apretando el pecho y abre despacio.
+
+[06] CLAVE: triceps-polea   ARCHIVO: triceps-extension-polea.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: extension de triceps en polea alta con barra, codos pegados al cuerpo, extiende los brazos hacia abajo y sube controlando.
+
+[07] CLAVE: triceps-patada   ARCHIVO: triceps-patada-mancuerna.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: patada de triceps con mancuerna, torso inclinado y codo alto pegado al costado, extiende el antebrazo hacia atras y baja despacio.
+
+
+=====================================================================
+ DIA 2 - ESPALDA + BICEPS
+=====================================================================
+
+[08] CLAVE: jalon-pecho   ARCHIVO: jalon-al-pecho.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: jalon al pecho en polea alta con agarre ancho, baja la barra al pecho llevando los codos hacia abajo y atras, y sube estirando la espalda.
+
+[09] CLAVE: remo-maquina   ARCHIVO: remo-maquina-sentado.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: remo sentado en maquina con espalda recta, tira de los agarres hacia el abdomen juntando las escapulas y estira controlando.
+
+[10] CLAVE: remo-mancuerna   ARCHIVO: remo-mancuerna-una-mano.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: remo con una mancuerna apoyando rodilla y mano en un banco, espalda paralela al suelo, tira la mancuerna hacia la cadera con el codo pegado y baja estirando.
+
+[11] CLAVE: pullover   ARCHIVO: pullover-polea.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: pullover en polea alta con los brazos casi rectos, lleva la barra hacia los muslos en arco sintiendo la espalda y sube controlando.
+
+[12] CLAVE: curl-barra   ARCHIVO: curl-biceps-barra.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: curl de biceps con barra de pie, codos pegados al cuerpo, sube la barra contrayendo el biceps y baja hasta estirar del todo.
+
+[13] CLAVE: curl-martillo   ARCHIVO: curl-martillo-mancuernas.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: curl martillo con mancuernas, agarre neutro con las palmas enfrentadas, codos quietos, sube y baja controlando.
+
+
+=====================================================================
+ DIA 3 - PIERNA + GLUTEO
+=====================================================================
+
+[14] CLAVE: prensa-pierna   ARCHIVO: prensa-pierna.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: prensa de pierna sentado, baja flexionando hasta 90 grados y empuja con los talones sin bloquear las rodillas.
+
+[15] CLAVE: sentadilla-smith   ARCHIVO: sentadilla-smith.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: sentadilla en maquina Smith con la barra sobre el trapecio y los pies algo adelantados, baja con el pecho arriba hasta muslos paralelos y sube empujando con los talones.
+
+[16] CLAVE: extension-cuadriceps   ARCHIVO: extension-cuadriceps.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: extension de cuadriceps en maquina, rodillo sobre el tobillo, extiende las piernas casi al bloqueo apretando el muslo y baja controlando.
+
+[17] CLAVE: curl-femoral   ARCHIVO: curl-femoral-tumbado.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: curl femoral tumbado boca abajo, rodillo sobre los talones, flexiona llevando los talones hacia los gluteos y baja despacio sin rebote.
+
+[18] CLAVE: hip-thrust   ARCHIVO: hip-thrust.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: empuje de cadera (hip thrust) con la espalda apoyada en un banco y una barra acolchada sobre la cadera, empuja la cadera arriba apretando los gluteos y baja sin tocar el suelo.
+
+[19] CLAVE: pantorrilla   ARCHIVO: elevacion-pantorrilla.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: elevacion de pantorrilla de pie con las puntas de los pies en un escalon y los talones colgando, sube lo mas alto sobre las puntas y baja estirando el gemelo.
+
+
+=====================================================================
+ DIA 4 - HOMBRO + ABDOMEN
+=====================================================================
+
+[20] CLAVE: press-hombro   ARCHIVO: press-hombro-mancuernas.mp4   (YA EXISTE EN LA APP)
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: press militar con mancuernas sentado, empuja arriba desde la altura de las orejas sin bloquear bruscamente y baja controlando.
+
+[21] CLAVE: elevaciones-laterales   ARCHIVO: elevaciones-laterales.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: elevaciones laterales con mancuernas de pie, codos algo flexionados, sube los brazos a los lados hasta la altura de los hombros y baja despacio sin balanceo.
+
+[22] CLAVE: deltoides-posterior   ARCHIVO: deltoides-posterior-pajaros.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: pajaros para deltoides posterior en maquina invertida (pec deck inverso), abre los brazos hacia atras juntando las escapulas y vuelve controlando.
+
+[23] CLAVE: encogimientos   ARCHIVO: encogimientos-trapecio.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: encogimientos de trapecio con mancuernas a los lados y brazos rectos, sube los hombros hacia las orejas, aprieta arriba y baja despacio.
+
+[24] CLAVE: plancha   ARCHIVO: plancha-abdominal.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: plancha abdominal sobre los antebrazos y las puntas de los pies, cuerpo en linea recta, abdomen y gluteos apretados, posicion isometrica estable.
+
+[25] CLAVE: crunch   ARCHIVO: crunch-maquina.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: crunch abdominal en maquina sujetando los agarres, enrolla el torso hacia adelante apretando el abdomen y vuelve controlando.
+
+[26] CLAVE: elevacion-piernas   ARCHIVO: elevacion-piernas-colgado.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: elevacion de piernas colgado de una barra, sube las rodillas hacia el pecho con el abdomen apretado y baja sin balancearse.
+
+
+=====================================================================
+ DIA 5 - FULL BODY + HIIT   (solo los ejercicios nuevos de este dia)
+=====================================================================
+
+[27] CLAVE: peso-muerto-rumano   ARCHIVO: peso-muerto-rumano-mancuernas.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: peso muerto rumano con mancuernas, rodillas semiflexionadas, lleva la cadera hacia atras bajando las mancuernas pegadas a las piernas con la espalda recta y sube apretando gluteos.
+
+[28] CLAVE: superserie-brazo   ARCHIVO: superserie-biceps-triceps.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: superserie de brazo, un curl de biceps con mancuernas seguido inmediatamente y sin pausa de una extension de triceps en polea.
+
+[29] CLAVE: hiit-cinta   ARCHIVO: hiit-cinta.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, sensacion de velocidad, sin texto ni logos. Esta haciendo: HIIT en cinta, alterna un sprint intenso con caminata suave, sudando, esfuerzo alto.
+
+NOTA: el Dia 5 tambien usa press-pecho [03], jalon-pecho [08], prensa-pierna [14] y press-hombro [20]. No hace falta volver a generarlos.
+
+
+=====================================================================
+ DIA 6 - CARDIO + CORE   (solo los ejercicios nuevos de este dia)
+=====================================================================
+
+[30] CLAVE: cardio-continuo   ARCHIVO: cardio-continuo.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, sin texto ni logos. Esta haciendo: cardio constante en bicicleta estatica de gimnasio a ritmo moderado y estable.
+
+[31] CLAVE: mountain-climbers   ARCHIVO: mountain-climbers.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, sin texto ni logos. Esta haciendo: mountain climbers en posicion de plancha alta, lleva las rodillas al pecho alternando a ritmo rapido y controlado con la cadera estable.
+
+[32] CLAVE: bicicleta-abdominal   ARCHIVO: bicicleta-abdominal.mp4
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, movimiento lento y controlado en bucle, sin texto ni logos. Esta haciendo: crunch bicicleta tumbado en el suelo, lleva el codo hacia la rodilla contraria alternando, estirando bien la pierna opuesta.
+
+NOTA: el Dia 6 tambien usa la plancha [24]. No hace falta volver a generarla.
+
+
+=====================================================================
+ CARDIO DE LOS DIAS DE FUERZA (cinta y eliptica)
+=====================================================================
+
+[33] CLAVE: cardio-cinta   ARCHIVO: cardio-cinta.mp4   (se usa en Dia 1 y Dia 4)
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, sin texto ni logos. Esta haciendo: correr en cinta a ritmo moderado con postura erguida, sin agarrarse a las barras.
+
+[34] CLAVE: cardio-eliptica   ARCHIVO: cardio-eliptica.mp4   (se usa en Dia 2)
+Un hombre latino de 27 anios, 1.78 m, complexion atletica delgada, piel morena clara, pelo negro corto, barba corta recortada, sin tatuajes. Camiseta deportiva negra ajustada, shorts grises y zapatillas blancas. Misma persona en todos los videos. Gimnasio moderno con luz calida y fondo desenfocado. Video realista, vertical 9:16, sin texto ni logos. Esta haciendo: cardio en eliptica usando brazos y piernas a ritmo constante y moderado, con el core activo.
+
+
+=====================================================================
+ FIN - 34 ejercicios unicos
+=====================================================================
