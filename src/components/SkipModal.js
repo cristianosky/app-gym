@@ -6,21 +6,26 @@
  */
 import React from 'react';
 import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, radius, spacing, font } from '../theme';
+import { colors, radius, spacing, font, family, alpha } from '../theme';
+import Icon from './Icon';
 
 export default function SkipModal({ visible, dayTitle, onClose, onSkip, onMove }) {
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.card}>
-          <Text style={styles.emoji}>🤔</Text>
+          <View style={styles.iconWrap}>
+            <Icon set="mci" name="help-circle-outline" size={34} color={colors.warning} />
+          </View>
           <Text style={styles.title}>¿Saltar el día de hoy?</Text>
           <Text style={styles.sub}>
             Hoy te toca <Text style={styles.bold}>{dayTitle}</Text>. Elige qué hacer con esta rutina:
           </Text>
 
           <Pressable onPress={onMove} style={({ pressed }) => [styles.option, styles.optionPrimary, pressed && styles.pressed]}>
-            <Text style={styles.optIcon}>➡️</Text>
+            <View style={[styles.optIconWrap, { backgroundColor: alpha(colors.warning, 0.16) }]}>
+              <Icon name="arrow-forward" size={18} color={colors.warning} />
+            </View>
             <View style={styles.optBody}>
               <Text style={styles.optTitle}>Mover al día siguiente</Text>
               <Text style={styles.optDesc}>Recorre el plan: harás esta rutina mañana.</Text>
@@ -28,7 +33,9 @@ export default function SkipModal({ visible, dayTitle, onClose, onSkip, onMove }
           </Pressable>
 
           <Pressable onPress={onSkip} style={({ pressed }) => [styles.option, pressed && styles.pressed]}>
-            <Text style={styles.optIcon}>⏭️</Text>
+            <View style={[styles.optIconWrap, { backgroundColor: colors.surfaceHigh }]}>
+              <Icon name="play-skip-forward-outline" size={18} color={colors.textMuted} />
+            </View>
             <View style={styles.optBody}>
               <Text style={styles.optTitle}>Solo saltar</Text>
               <Text style={styles.optDesc}>Se marca como saltada y mañana sigue lo normal.</Text>
@@ -47,20 +54,20 @@ export default function SkipModal({ visible, dayTitle, onClose, onSkip, onMove }
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', justifyContent: 'center', padding: spacing.lg },
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.xl },
-  emoji: { fontSize: 40, textAlign: 'center', marginBottom: spacing.sm },
-  title: { color: colors.text, fontSize: font.h2, fontWeight: '800', textAlign: 'center', marginBottom: spacing.sm },
-  sub: { color: colors.textMuted, fontSize: font.body, textAlign: 'center', lineHeight: 21, marginBottom: spacing.lg },
-  bold: { color: colors.text, fontWeight: '700' },
+  iconWrap: { alignSelf: 'center', width: 64, height: 64, borderRadius: 32, backgroundColor: alpha(colors.warning, 0.14), alignItems: 'center', justifyContent: 'center', marginBottom: spacing.sm },
+  title: { color: colors.text, fontSize: font.h2, fontFamily: family.display, textAlign: 'center', marginBottom: spacing.sm },
+  sub: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, textAlign: 'center', lineHeight: 21, marginBottom: spacing.lg },
+  bold: { color: colors.text, fontFamily: family.bodyBold },
   option: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surfaceAlt,
     borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.border,
   },
-  optionPrimary: { borderColor: colors.warning + '88', backgroundColor: colors.warning + '14' },
+  optionPrimary: { borderColor: alpha(colors.warning, 0.5), backgroundColor: alpha(colors.warning, 0.08) },
   pressed: { opacity: 0.75 },
-  optIcon: { fontSize: 24, marginRight: spacing.md },
+  optIconWrap: { width: 38, height: 38, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
   optBody: { flex: 1 },
-  optTitle: { color: colors.text, fontSize: font.h3, fontWeight: '700', marginBottom: 2 },
-  optDesc: { color: colors.textMuted, fontSize: font.small, lineHeight: 18 },
-  cancel: { paddingVertical: spacing.sm, alignItems: 'center', marginTop: spacing.xs },
-  cancelText: { color: colors.textFaint, fontSize: font.body, fontWeight: '600' },
+  optTitle: { color: colors.text, fontSize: font.h3, fontFamily: family.bodySemi, marginBottom: 2 },
+  optDesc: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body, lineHeight: 18 },
+  cancel: { paddingVertical: spacing.sm, alignItems: 'center', marginTop: spacing.xs, minHeight: 44, justifyContent: 'center' },
+  cancelText: { color: colors.textFaint, fontSize: font.body, fontFamily: family.bodySemi },
 });

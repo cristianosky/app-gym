@@ -5,25 +5,32 @@
  */
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
-import { colors, radius, spacing, font, shadow } from '../theme';
-import { WEEK_LIST } from '../data/routine';
-import { useWorkout } from '../store/WorkoutStore';
+import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
+import { usePlan } from '../store/PlanStore';
 import { weekdayIndex, currentWeekKeys } from '../utils/dates';
+import Icon from '../components/Icon';
+import SinRutina from '../components/SinRutina';
 
 const DAY_NAMES = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
 
 export default function WeekScreen() {
-  const { getDay } = useWorkout();
+  const { getDay, rutina } = usePlan();
   const todayIdx = weekdayIndex();
   const weekKeys = currentWeekKeys(); // claves Lunes..Domingo de esta semana
   const [open, setOpen] = useState(todayIdx);
 
+  if (!rutina) return <SinRutina />;
+
+  const diasEntreno = rutina.dias.filter((d) => !d.rest).length;
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Tu semana</Text>
-      <Text style={styles.subtitle}>Plan de recomposición · 5 días + 1 opcional</Text>
+      <Text style={styles.h1}>Su semana</Text>
+      <Text style={styles.subtitle}>
+        {rutina.nombre} · {diasEntreno} {diasEntreno === 1 ? 'día' : 'días'} de entrenamiento
+      </Text>
 
-      {WEEK_LIST.map((plan) => {
+      {rutina.dias.map((plan) => {
         const idx = plan.day;
         const accent = colors[plan.accent] || colors.primary;
         const isToday = idx === todayIdx;
@@ -36,16 +43,24 @@ export default function WeekScreen() {
 
         return (
           <View key={idx} style={[styles.card, isToday && { borderColor: accent, borderWidth: 2 }]}>
-            <Pressable onPress={() => setOpen(expanded ? null : idx)} style={styles.cardHead}>
-              <View style={[styles.dayIcon, { backgroundColor: accent + '22' }]}>
-                <Text style={styles.dayIconText}>{plan.icon}</Text>
+            <Pressable
+              onPress={() => setOpen(expanded ? null : idx)}
+              style={({ pressed }) => [styles.cardHead, pressed && styles.cardHeadPressed]}
+              accessibilityRole="button"
+              accessibilityState={{ expanded }}
+            >
+              <View style={[styles.dayIcon, { backgroundColor: alpha(accent, 0.16) }]}>
+                <Icon set="mci" name={plan.icon} size={24} color={accent} />
               </View>
 
               <View style={{ flex: 1 }}>
                 <View style={styles.titleRow}>
                   <Text style={styles.dayName}>{DAY_NAMES[idx]}</Text>
-                  {isToday && <View style={[styles.todayTag, { backgroundColor: accent }]}><Text style={styles.todayTagText}>HOY</Text></View>}
-                  {plan.optional && <View style={styles.optTag}><Text style={styles.optTagText}>OPCIONAL</Text></View>}
+                  {isToday && (
+                    <View style={[styles.todayTag, { backgroundColor: accent }]}>
+                      <Text style={styles.todayTagText}>HOY</Text>
+                    </View>
+                  )}
                 </View>
                 <Text style={[styles.dayTitle, { color: accent }]}>{plan.title}</Text>
                 <Text style={styles.dayMeta}>
@@ -54,6 +69,12 @@ export default function WeekScreen() {
               </View>
 
               <StatusDot status={status} />
+              <Icon
+                name={expanded ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color={colors.textFaint}
+                style={{ marginLeft: spacing.xs }}
+              />
             </Pressable>
 
             {expanded && !plan.rest && (
@@ -73,7 +94,10 @@ export default function WeekScreen() {
 
             {expanded && plan.rest && (
               <View style={styles.exList}>
-                <Text style={styles.restNote}>Día de descanso activo. Camina, estírate y duerme bien. 🌙</Text>
+                <View style={styles.restNoteRow}>
+                  <Icon set="mci" name="power-sleep" size={18} color={colors.rest} />
+                  <Text style={styles.restNote}>Día de descanso. Camine, estírese y duerma bien.</Text>
+                </View>
               </View>
             )}
           </View>
@@ -85,15 +109,16 @@ export default function WeekScreen() {
 
 function StatusDot({ status }) {
   const map = {
-    completed: { c: colors.success, t: '✓' },
-    skipped: { c: colors.warning, t: '⏭' },
-    rest: { c: colors.rest, t: '○' },
-    active: { c: colors.border, t: '' },
+    completed: { c: colors.success, icon: 'checkmark' },
+    skipped: { c: colors.warning, icon: 'play-skip-forward' },
+    rest: { c: colors.rest, icon: 'moon' },
+    active: { c: colors.border, icon: null },
   };
   const s = map[status] || map.active;
+  const filled = status === 'completed';
   return (
-    <View style={[styles.statusDot, { borderColor: s.c, backgroundColor: status === 'completed' ? s.c : 'transparent' }]}>
-      <Text style={[styles.statusDotText, { color: status === 'completed' ? colors.bg : s.c }]}>{s.t}</Text>
+    <View style={[styles.statusDot, { borderColor: s.c, backgroundColor: filled ? s.c : 'transparent' }]}>
+      {s.icon && <Icon name={s.icon} size={14} color={filled ? colors.onPrimary : s.c} />}
     </View>
   );
 }
@@ -101,29 +126,29 @@ function StatusDot({ status }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  h1: { color: colors.text, fontSize: font.h1, fontWeight: '900' },
-  subtitle: { color: colors.textMuted, fontSize: font.body, marginBottom: spacing.lg },
+  h1: { color: colors.text, fontSize: font.h1, fontFamily: family.display },
+  subtitle: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, marginBottom: spacing.lg },
 
   card: { backgroundColor: colors.surface, borderRadius: radius.md, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', ...shadow.card },
-  cardHead: { flexDirection: 'row', alignItems: 'center', padding: spacing.md },
+  cardHead: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, minHeight: 44 },
+  cardHeadPressed: { backgroundColor: colors.surfaceAlt },
   dayIcon: { width: 48, height: 48, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
-  dayIconText: { fontSize: 26 },
   titleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 1, gap: 6 },
-  dayName: { color: colors.textMuted, fontSize: font.small, fontWeight: '700' },
+  dayName: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodyBold },
   todayTag: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill },
-  todayTagText: { color: colors.bg, fontSize: 9, fontWeight: '900', letterSpacing: 0.5 },
+  todayTagText: { color: colors.onPrimary, fontSize: 9, fontFamily: family.bodyBold, letterSpacing: 0.5 },
   optTag: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border },
-  optTagText: { color: colors.textFaint, fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
-  dayTitle: { fontSize: font.h3, fontWeight: '800' },
-  dayMeta: { color: colors.textFaint, fontSize: font.small, marginTop: 1 },
+  optTagText: { color: colors.textFaint, fontSize: 9, fontFamily: family.bodyBold, letterSpacing: 0.5 },
+  dayTitle: { fontSize: font.h3, fontFamily: family.displaySemi },
+  dayMeta: { color: colors.textFaint, fontSize: font.small, fontFamily: family.body, marginTop: 1 },
 
   statusDot: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginLeft: spacing.sm },
-  statusDotText: { fontSize: 14, fontWeight: '900' },
 
   exList: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, backgroundColor: colors.bg },
   exRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7 },
   exDot: { width: 7, height: 7, borderRadius: 4, marginRight: spacing.sm },
-  exName: { flex: 1, color: colors.text, fontSize: font.body },
-  exMeta: { color: colors.textMuted, fontSize: font.small, fontWeight: '600' },
-  restNote: { color: colors.textMuted, fontSize: font.body, paddingVertical: spacing.sm, lineHeight: 21 },
+  exName: { flex: 1, color: colors.text, fontSize: font.body, fontFamily: family.body },
+  exMeta: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodySemi },
+  restNoteRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
+  restNote: { flex: 1, color: colors.textMuted, fontSize: font.body, fontFamily: family.body, lineHeight: 21 },
 });

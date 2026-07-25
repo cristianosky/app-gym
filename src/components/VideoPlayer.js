@@ -12,7 +12,8 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, Pressable, Image, Linking, ActivityIndicator, StyleSheet } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import { colors, radius, spacing, font } from '../theme';
+import { colors, radius, spacing, font, family } from '../theme';
+import Icon from './Icon';
 
 export default function VideoPlayer({ videoId, query }) {
   const [active, setActive] = useState(false);
@@ -47,14 +48,15 @@ export default function VideoPlayer({ videoId, query }) {
           />
           <View style={styles.overlay}>
             <View style={styles.playBtn}>
-              <Text style={styles.playIcon}>▶</Text>
+              <Icon name="play" size={26} color="#fff" style={{ marginLeft: 3 }} />
             </View>
           </View>
         </Pressable>
       ) : null}
 
       <Pressable onPress={openYouTube} style={({ pressed }) => [styles.ytLink, pressed && { opacity: 0.7 }]}>
-        <Text style={styles.ytLinkText}>{videoId ? '▶ Abrir en YouTube' : '🔍 Buscar video en YouTube'}</Text>
+        <Icon name={videoId ? 'logo-youtube' : 'search'} size={17} color={colors.primary} />
+        <Text style={styles.ytLinkText}>{videoId ? 'Abrir en YouTube' : 'Buscar video en YouTube'}</Text>
       </Pressable>
     </View>
   );
@@ -70,7 +72,9 @@ const styles = StyleSheet.create({
     width: 62, height: 62, borderRadius: 31, backgroundColor: 'rgba(0,0,0,0.55)',
     borderWidth: 2, borderColor: '#fff', alignItems: 'center', justifyContent: 'center',
   },
-  playIcon: { color: '#fff', fontSize: 24, marginLeft: 4 },
-  ytLink: { marginTop: spacing.sm, paddingVertical: spacing.sm, alignItems: 'center', borderRadius: radius.sm, backgroundColor: colors.surfaceAlt },
-  ytLinkText: { color: colors.primary, fontSize: font.body, fontWeight: '700' },
+  ytLink: {
+    marginTop: spacing.sm, paddingVertical: spacing.sm, flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'center', gap: 7, borderRadius: radius.sm, backgroundColor: colors.surfaceAlt, minHeight: 44,
+  },
+  ytLinkText: { color: colors.primary, fontSize: font.body, fontFamily: family.bodySemi },
 });

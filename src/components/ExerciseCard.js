@@ -5,9 +5,10 @@
  */
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, radius, spacing, font, shadow } from '../theme';
+import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
+import Icon from './Icon';
 import { getLocalVideo } from '../data/localVideos';
 
 const GROUP_LABEL = {
@@ -23,6 +24,7 @@ export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [styles.card, done && styles.cardDone, pressed && styles.pressed]}
+      accessibilityRole="button"
     >
       {/* Franja de color del grupo muscular */}
       <View style={[styles.stripe, { backgroundColor: accent }]} />
@@ -41,32 +43,40 @@ export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
         </Text>
 
         <View style={styles.chips}>
-          <View style={[styles.chip, { backgroundColor: accent + '22', borderColor: accent + '55' }]}>
+          <View style={[styles.chip, { backgroundColor: alpha(accent, 0.14), borderColor: alpha(accent, 0.35) }]}>
             <Text style={[styles.chipText, { color: accent }]}>{GROUP_LABEL[exercise.group] || exercise.group}</Text>
           </View>
         </View>
 
-        <Text style={styles.meta}>
-          <Text style={styles.metaStrong}>{exercise.sets}</Text>
-          {exercise.sets > 1 ? ' series · ' : ' · '}
-          <Text style={styles.metaStrong}>{exercise.reps}</Text>
-          {exercise.rest > 0 ? `  ·  ⏱ ${exercise.rest}s` : ''}
-        </Text>
+        <View style={styles.metaRow}>
+          <Text style={styles.meta}>
+            <Text style={styles.metaStrong}>{exercise.sets}</Text>
+            {exercise.sets > 1 ? ' series · ' : ' · '}
+            <Text style={styles.metaStrong}>{exercise.reps}</Text>
+          </Text>
+          {exercise.rest > 0 && (
+            <View style={styles.restMeta}>
+              <Icon name="time-outline" size={13} color={colors.textMuted} />
+              <Text style={styles.meta}>{exercise.rest}s</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       {/* Check grande (fácil de tocar con una mano) */}
       <Pressable
         onPress={onToggle}
         hitSlop={10}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: done }}
+        accessibilityLabel={done ? 'Marcado como completado' : 'Marcar como completado'}
         style={({ pressed }) => [
           styles.check,
           { borderColor: done ? colors.success : colors.border, backgroundColor: done ? colors.success : 'transparent' },
           pressed && { opacity: 0.6 },
         ]}
       >
-        <Text style={[styles.checkMark, { color: done ? colors.bg : colors.textFaint }]}>
-          {done ? '✓' : ''}
-        </Text>
+        {done && <Icon name="checkmark" size={24} color={colors.onPrimary} />}
       </Pressable>
     </Pressable>
   );
@@ -91,16 +101,17 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', marginRight: spacing.md, marginLeft: spacing.xs,
   },
   info: { flex: 1, paddingRight: spacing.sm },
-  name: { color: colors.text, fontSize: font.h3, fontWeight: '700', marginBottom: 5 },
+  name: { color: colors.text, fontSize: font.h3, fontFamily: family.bodySemi, marginBottom: 5 },
   strike: { textDecorationLine: 'line-through', color: colors.textMuted },
   chips: { flexDirection: 'row', marginBottom: 6 },
   chip: { paddingHorizontal: 9, paddingVertical: 3, borderRadius: radius.pill, borderWidth: 1 },
-  chipText: { fontSize: font.tiny, fontWeight: '700' },
-  meta: { color: colors.textMuted, fontSize: font.small },
-  metaStrong: { color: colors.text, fontWeight: '700' },
+  chipText: { fontSize: font.tiny, fontFamily: family.bodyBold },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  restMeta: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  meta: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body },
+  metaStrong: { color: colors.text, fontFamily: family.bodyBold },
   check: {
-    width: 42, height: 42, borderRadius: radius.pill, borderWidth: 2,
+    width: 44, height: 44, borderRadius: radius.pill, borderWidth: 2,
     alignItems: 'center', justifyContent: 'center',
   },
-  checkMark: { fontSize: 22, fontWeight: '900', lineHeight: 24 },
 });

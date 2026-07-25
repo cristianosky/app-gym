@@ -1,0 +1,28 @@
+{
+  "name": "mi-entrenamiento-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API de Mi Entrenamiento: usuarios, rutinas y nutrición generadas con Claude.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test \"src/**/*.test.js\"",
+    "probar:ia": "node scripts/probar-ia.mjs"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "@google/genai": "^2.13.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
+    "zod": "^4.4.3"
+  }
+}
