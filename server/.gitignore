@@ -1,5 +1,9 @@
 node_modules/
-data/
+# Con barra inicial: ancla el patrón a esta carpeta (server/data/, la base
+# SQLite en tiempo de ejecución). Sin la barra, "data/" también ignoraba
+# server/src/data/ (el catálogo de ejercicios y las opciones), que es código
+# fuente y sí debe subirse al repo.
+/data/
 .env
 .env.local
 *.log
