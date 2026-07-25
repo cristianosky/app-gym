@@ -333,6 +333,25 @@ export function PlanProvider({ children }) {
     [actualizarProgreso],
   );
 
+  /**
+   * Pone en descanso, en la rutina ya guardada, los días que la persona dejó
+   * de marcar como entreno. Es local (no llama a la IA), así que se puede
+   * disparar solo con cambiar el perfil, sin preguntar.
+   */
+  const sincronizarDiasDescanso = useCallback(async (trainingDays) => {
+    try {
+      const respuesta = await endpoints.rutina.actualizarDias(trainingDays);
+      if (respuesta.routine?.plan) {
+        setRutina(normalizarPlan(respuesta.routine.plan));
+        setOrigenRutina(respuesta.routine.source);
+      }
+      return respuesta;
+    } catch {
+      // Sin conexión o sin rutina aún: no es grave, se sincroniza en el próximo intento.
+      return null;
+    }
+  }, []);
+
   /** Vuelve a pedirle la rutina a la IA con el perfil actual. */
   const regenerarRutina = useCallback(async () => {
     setCargando(true);
@@ -452,6 +471,7 @@ export function PlanProvider({ children }) {
       skipDay,
       resetDay,
       regenerarRutina,
+      sincronizarDiasDescanso,
       cargarComidas,
       descargar,
       weekStats,
@@ -460,7 +480,7 @@ export function PlanProvider({ children }) {
     [
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
-      regenerarRutina, cargarComidas, descargar, weekStats, streak,
+      regenerarRutina, sincronizarDiasDescanso, cargarComidas, descargar, weekStats, streak,
     ],
   );
 

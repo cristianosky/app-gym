@@ -120,3 +120,22 @@ export async function generateRoutine(user) {
 export function getCurrentRoutine(userId) {
   return planRepo.findCurrent('rutina', userId);
 }
+
+/**
+ * Pone en descanso los días que la persona ya no entrena, sin tocar la IA.
+ * Solo apaga días (no puede prender uno nuevo: no hay ejercicios para
+ * inventarle un día que la IA nunca armó). Para eso sigue existiendo
+ * `regenerarRutina`.
+ */
+export function syncRestDays(userId, trainingDays) {
+  const actual = planRepo.findCurrent('rutina', userId);
+  if (!actual) return null;
+
+  const dias = actual.plan.dias.map((dia) => {
+    if (dia.rest || trainingDays.includes(dia.dia)) return dia;
+    return { ...dia, rest: true, ejercicios: [] };
+  });
+
+  const plan = { ...actual.plan, dias };
+  return planRepo.save('rutina', userId, plan, actual.source);
+}

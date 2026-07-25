@@ -57,7 +57,7 @@ function validar(datos) {
 
 export default function EditProfileModal({ visible, onClose }) {
   const { user, actualizarPerfil } = useAuth();
-  const { regenerarRutina } = usePlan();
+  const { regenerarRutina, sincronizarDiasDescanso } = usePlan();
 
   const [opciones, setOpciones] = useState(null);
   const [datos, setDatos] = useState(null);
@@ -88,7 +88,7 @@ export default function EditProfileModal({ visible, onClose }) {
   }, []);
 
   const contexto = useMemo(
-    () => (datos ? { datos, actualizar, errores, opciones } : null),
+    () => (datos && opciones ? { datos, actualizar, errores, opciones } : null),
     [datos, actualizar, errores, opciones],
   );
 
@@ -119,6 +119,10 @@ export default function EditProfileModal({ visible, onClose }) {
         foodNote: datos.foodNote.trim(),
       });
 
+      // Barato y local: los días que ya no se entrenan pasan a descanso ya
+      // mismo, sin esperar a que la persona decida regenerar toda la rutina.
+      sincronizarDiasDescanso(datos.trainingDays);
+
       onClose();
       Alert.alert(
         'Perfil actualizado',
@@ -134,7 +138,7 @@ export default function EditProfileModal({ visible, onClose }) {
     } finally {
       setGuardando(false);
     }
-  }, [datos, actualizarPerfil, onClose, regenerarRutina]);
+  }, [datos, actualizarPerfil, onClose, regenerarRutina, sincronizarDiasDescanso]);
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>

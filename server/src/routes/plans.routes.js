@@ -8,7 +8,8 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler.js';
 import { requireAuth } from '../middleware/auth.js';
 import { generateLimiter } from '../middleware/rate-limit.js';
-import { generateRoutine, getCurrentRoutine } from '../services/routine.service.js';
+import { parseBody, routineDaysSchema } from '../validation/schemas.js';
+import { generateRoutine, getCurrentRoutine, syncRestDays } from '../services/routine.service.js';
 import { generateNutrition, getCurrentNutrition } from '../services/nutrition.service.js';
 
 export const routineRouter = Router();
@@ -28,6 +29,18 @@ routineRouter.post(
   asyncHandler(async (req, res) => {
     const { plan, source, aviso } = await generateRoutine(req.user);
     res.json({ ok: true, routine: { plan, source, createdAt: Date.now() }, aviso });
+  }),
+);
+
+routineRouter.patch(
+  '/days',
+  asyncHandler(async (req, res) => {
+    const { trainingDays } = parseBody(routineDaysSchema, req.body);
+    const guardado = syncRestDays(req.user.id, trainingDays);
+    res.json({
+      ok: true,
+      routine: guardado ? { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt } : null,
+    });
   }),
 );
 

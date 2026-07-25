@@ -59,6 +59,11 @@ export const profileSchema = z.object({
   foodNote: texto(300).optional().default(''),
 });
 
+/** Días de entrenamiento nuevos, para sincronizar los descansos de la rutina vigente. */
+export const routineDaysSchema = z.object({
+  trainingDays: profileSchema.shape.trainingDays,
+});
+
 export const registerSchema = z.object({
   name: z
     .string()

@@ -24,7 +24,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiUrl": null,
+      "apiUrl": "https://apigym.nuestrapolla.club",
       "apiPort": 4000
     },
     "plugins": [
