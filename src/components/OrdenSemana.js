@@ -4,8 +4,9 @@
  * distinto el contenido entre los días que la persona ya entrena.
  */
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, spacing, font, family, radius } from '../theme';
+import { Alert } from '../utils/alert';
 import Icon from './Icon';
 import { usePlan } from '../store/PlanStore';
 

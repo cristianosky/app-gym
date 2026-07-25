@@ -7,8 +7,9 @@
  * solo que aquí ya viene lleno y sin la parte de identidad ni de PIN.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Modal, View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
+import { Modal, View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { colors, spacing, font, family, radius, alpha } from '../theme';
+import { Alert } from '../utils/alert';
 import Icon from '../components/Icon';
 import Button from '../components/Button';
 import { PasoCuerpo } from './auth/steps/PasosPersonales';

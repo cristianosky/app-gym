@@ -3,8 +3,9 @@
  * porcentaje de cumplimiento y desglose completados vs. saltados.
  */
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
+import { Alert } from '../utils/alert';
 import { usePlan } from '../store/PlanStore';
 import { useAuth } from '../store/AuthStore';
 import ProgressBar from '../components/ProgressBar';

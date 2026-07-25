@@ -8,10 +8,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View, Text, TextInput, Pressable, ScrollView, StyleSheet,
-  KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Image,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, radius, spacing, font, family, alpha } from '../theme';
+import { Alert } from '../utils/alert';
 import Icon from '../components/Icon';
 import ChatBubble from '../components/ChatBubble';
 import * as endpoints from '../api/endpoints';
