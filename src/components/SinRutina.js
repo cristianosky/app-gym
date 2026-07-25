@@ -7,6 +7,7 @@
  */
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import * as endpoints from '../api/endpoints';
 import { colors, spacing, font, family, alpha } from '../theme';
 import Icon from './Icon';
 import Button from './Button';
@@ -15,6 +16,7 @@ import { usePlan } from '../store/PlanStore';
 export default function SinRutina() {
   const { regenerarRutina, descargar, cargando, generandoRutina } = usePlan();
   const [error, setError] = useState(null);
+  const [comprobando, setComprobando] = useState(false);
 
   const reintentar = async () => {
     setError(null);
@@ -26,6 +28,15 @@ export default function SinRutina() {
     }
   };
 
+  const comprobar = async () => {
+    setComprobando(true);
+    try {
+      await descargar();
+    } finally {
+      setComprobando(false);
+    }
+  };
+
   if (generandoRutina) {
     return (
       <View style={styles.screen}>
@@ -34,6 +45,14 @@ export default function SinRutina() {
         <Text style={styles.text}>
           El asistente está armando su plan personalizado. Esto toma unos segundos.
         </Text>
+        <Button
+          label="Comprobar si ya está lista"
+          icon="refresh"
+          variant="secondary"
+          onPress={comprobar}
+          loading={comprobando}
+          style={styles.boton}
+        />
       </View>
     );
   }
