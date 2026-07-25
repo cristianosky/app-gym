@@ -11,8 +11,7 @@
  * en lugar del de YouTube.
  */
 export const LOCAL_VIDEOS = {
-  // Press de hombro con mancuernas (video generado por Cristian)
-  'press-hombro': require('../../assets/videos/press-hombro-mancuernas.mp4'),
+  // 'press-hombro': require('../../assets/videos/press-hombro-mancuernas.mp4'),
 };
 
 /** Devuelve el require() del video local o null si no existe. */
