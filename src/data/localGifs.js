@@ -1,15 +1,85 @@
 /**
- * Registro de GIFs locales, generado por scripts/generar-gifs.mjs.
+ * Registro de ejemplos locales (video o imagen), generado por scripts/generar-gifs.mjs.
  * NO EDITE ESTE ARCHIVO A MANO: sus cambios se pierden al regenerarlo.
  *
- * Para agregar un GIF: copie <id-del-ejercicio>.gif en assets/gifs/ y
- * corra `npm run gifs`.
+ * Para agregar uno: copie <id-del-ejercicio>.<ext> en assets/gifs/ (video:
+ * mp4/mov/webm/m4v, imagen: gif/jpg/jpeg/png/webp) y corra `npm run gifs`.
  */
 export const LOCAL_GIFS = {
-
+  'banco-abdominal': { tipo: 'imagen', fuente: require('../../assets/gifs/banco-abdominal.gif') },
+  'bicicleta-estatica': { tipo: 'imagen', fuente: require('../../assets/gifs/bicicleta-estatica.gif') },
+  'bicicleta-reclinada': { tipo: 'imagen', fuente: require('../../assets/gifs/bicicleta-reclinada.gif') },
+  'caminata-inclinada': { tipo: 'imagen', fuente: require('../../assets/gifs/caminata-inclinada.gif') },
+  'cardio-caminadora': { tipo: 'imagen', fuente: require('../../assets/gifs/cardio-caminadora.gif') },
+  'ciclismo-eliptica': { tipo: 'imagen', fuente: require('../../assets/gifs/ciclismo-eliptica.gif') },
+  'cruce-poleas': { tipo: 'imagen', fuente: require('../../assets/gifs/cruce-poleas.gif') },
+  'crunch-bicicleta': { tipo: 'imagen', fuente: require('../../assets/gifs/crunch-bicicleta.gif') },
+  'crunch-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/crunch-maquina.gif') },
+  'curl-biceps-barra': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-biceps-barra.gif') },
+  'curl-femoral': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-femoral.gif') },
+  'curl-femoral-sentado': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-femoral-sentado.gif') },
+  'curl-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-maquina.gif') },
+  'curl-martillo': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-martillo.gif') },
+  'curl-polea': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-polea.gif') },
+  'curl-scott': { tipo: 'imagen', fuente: require('../../assets/gifs/curl-scott.gif') },
+  'dominadas-asistidas': { tipo: 'imagen', fuente: require('../../assets/gifs/dominadas-asistidas.gif') },
+  'elevacion-piernas': { tipo: 'imagen', fuente: require('../../assets/gifs/elevacion-piernas.gif') },
+  'elevacion-talones': { tipo: 'imagen', fuente: require('../../assets/gifs/elevacion-talones.gif') },
+  'elevaciones-frontales': { tipo: 'imagen', fuente: require('../../assets/gifs/elevaciones-frontales.gif') },
+  'elevaciones-laterales': { tipo: 'imagen', fuente: require('../../assets/gifs/elevaciones-laterales.gif') },
+  'encogimientos-trapecio': { tipo: 'imagen', fuente: require('../../assets/gifs/encogimientos-trapecio.gif') },
+  'estocadas': { tipo: 'imagen', fuente: require('../../assets/gifs/estocadas.gif') },
+  'extension-cuadriceps': { tipo: 'imagen', fuente: require('../../assets/gifs/extension-cuadriceps.gif') },
+  'extension-triceps-cabeza': { tipo: 'imagen', fuente: require('../../assets/gifs/extension-triceps-cabeza.gif') },
+  'extension-triceps-polea': { tipo: 'imagen', fuente: require('../../assets/gifs/extension-triceps-polea.gif') },
+  'face-pull': { tipo: 'imagen', fuente: require('../../assets/gifs/face-pull.gif') },
+  'flexiones-pecho': { tipo: 'imagen', fuente: require('../../assets/gifs/flexiones-pecho.gif') },
+  'fondos-asistidos-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/fondos-asistidos-maquina.gif') },
+  'fondos-banca': { tipo: 'imagen', fuente: require('../../assets/gifs/fondos-banca.gif') },
+  'hack-squat': { tipo: 'imagen', fuente: require('../../assets/gifs/hack-squat.gif') },
+  'hip-thrust': { tipo: 'imagen', fuente: require('../../assets/gifs/hip-thrust.gif') },
+  'hiperextension-lumbar': { tipo: 'imagen', fuente: require('../../assets/gifs/hiperextension-lumbar.gif') },
+  'jalon-al-pecho': { tipo: 'imagen', fuente: require('../../assets/gifs/jalon-al-pecho.gif') },
+  'jalon-cerrado': { tipo: 'imagen', fuente: require('../../assets/gifs/jalon-cerrado.gif') },
+  'maquina-abductores': { tipo: 'imagen', fuente: require('../../assets/gifs/maquina-abductores.gif') },
+  'maquina-aductores': { tipo: 'imagen', fuente: require('../../assets/gifs/maquina-aductores.gif') },
+  'mariposa-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/mariposa-maquina.gif') },
+  'mountain-climbers': { tipo: 'imagen', fuente: require('../../assets/gifs/mountain-climbers.gif') },
+  'patada-gluteo-banda': { tipo: 'imagen', fuente: require('../../assets/gifs/patada-gluteo-banda.gif') },
+  'patada-gluteo-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/patada-gluteo-maquina.gif') },
+  'patada-triceps': { tipo: 'imagen', fuente: require('../../assets/gifs/patada-triceps.gif') },
+  'peso-muerto': { tipo: 'imagen', fuente: require('../../assets/gifs/peso-muerto.gif') },
+  'peso-muerto-rumano': { tipo: 'imagen', fuente: require('../../assets/gifs/peso-muerto-rumano.gif') },
+  'plancha': { tipo: 'imagen', fuente: require('../../assets/gifs/plancha.jpg') },
+  'plancha-lateral': { tipo: 'imagen', fuente: require('../../assets/gifs/plancha-lateral.jpg') },
+  'prensa-pierna': { tipo: 'imagen', fuente: require('../../assets/gifs/prensa-pierna.gif') },
+  'press-banca-barra': { tipo: 'imagen', fuente: require('../../assets/gifs/press-banca-barra.gif') },
+  'press-declinado': { tipo: 'imagen', fuente: require('../../assets/gifs/press-declinado.gif') },
+  'press-hombro-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/press-hombro-maquina.gif') },
+  'press-inclinado-mancuernas': { tipo: 'imagen', fuente: require('../../assets/gifs/press-inclinado-mancuernas.gif') },
+  'press-militar-mancuernas': { tipo: 'imagen', fuente: require('../../assets/gifs/press-militar-mancuernas.gif') },
+  'press-pecho-mancuernas': { tipo: 'imagen', fuente: require('../../assets/gifs/press-pecho-mancuernas.gif') },
+  'press-pecho-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/press-pecho-maquina.gif') },
+  'puente-gluteo': { tipo: 'imagen', fuente: require('../../assets/gifs/puente-gluteo.gif') },
+  'pull-through': { tipo: 'imagen', fuente: require('../../assets/gifs/pull-through.gif') },
+  'pullover-polea': { tipo: 'imagen', fuente: require('../../assets/gifs/pullover-polea.gif') },
+  'remo-bajo-polea': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-bajo-polea.gif') },
+  'remo-barra': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-barra.gif') },
+  'remo-hammer': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-hammer.gif') },
+  'remo-mancuerna-unilateral': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-mancuerna-unilateral.gif') },
+  'remo-maquina': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-maquina.gif') },
+  'remo-trx': { tipo: 'imagen', fuente: require('../../assets/gifs/remo-trx.gif') },
+  'salto-al-cajon': { tipo: 'imagen', fuente: require('../../assets/gifs/salto-al-cajon.gif') },
+  'sentadilla-libre': { tipo: 'imagen', fuente: require('../../assets/gifs/sentadilla-libre.gif') },
+  'sentadilla-peso-corporal': { tipo: 'imagen', fuente: require('../../assets/gifs/sentadilla-peso-corporal.gif') },
+  'sentadilla-smith': { tipo: 'imagen', fuente: require('../../assets/gifs/sentadilla-smith.gif') },
+  'slam-ball': { tipo: 'imagen', fuente: require('../../assets/gifs/slam-ball.gif') },
+  'spinning': { tipo: 'imagen', fuente: require('../../assets/gifs/spinning.gif') },
+  'step-up': { tipo: 'imagen', fuente: require('../../assets/gifs/step-up.gif') },
+  'vuelos-posteriores': { tipo: 'imagen', fuente: require('../../assets/gifs/vuelos-posteriores.gif') },
 };
 
-/** Devuelve el require() del GIF local o null si no existe. */
+/** Devuelve { tipo: 'video'|'imagen', fuente } del ejemplo local, o null si no existe. */
 export function getLocalGif(id) {
   if (!id) return null;
   return LOCAL_GIFS[id] || null;

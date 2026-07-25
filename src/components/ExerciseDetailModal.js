@@ -53,9 +53,13 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
               <View style={styles.videoHero}>
                 <LocalVideo source={videoLocal} controls contentFit="cover" />
               </View>
+            ) : gifLocal?.tipo === 'video' ? (
+              <View style={styles.videoHero}>
+                <LocalVideo source={gifLocal.fuente} controls contentFit="cover" />
+              </View>
             ) : gifLocal ? (
               <View style={styles.videoHero}>
-                <Image source={gifLocal} style={styles.gifHero} resizeMode="cover" />
+                <Image source={gifLocal.fuente} style={styles.gifHero} resizeMode="cover" />
               </View>
             ) : mostrarVideo ? (
               <View style={styles.videoWrap}>

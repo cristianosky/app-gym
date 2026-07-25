@@ -34,8 +34,10 @@ export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
       <View style={[styles.illu, { backgroundColor: colors.bg }]}>
         {localVideo ? (
           <LocalVideo source={localVideo} controls={false} contentFit="cover" />
+        ) : localGif?.tipo === 'video' ? (
+          <LocalVideo source={localGif.fuente} controls={false} contentFit="cover" />
         ) : localGif ? (
-          <Image source={localGif} style={styles.gif} resizeMode="cover" />
+          <Image source={localGif.fuente} style={styles.gif} resizeMode="cover" />
         ) : (
           <ExerciseIllustration kind={exercise.illu} accent={accent} size={88} />
         )}
