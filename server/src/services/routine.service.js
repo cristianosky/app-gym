@@ -122,9 +122,12 @@ export function getCurrentRoutine(userId) {
 }
 
 /**
- * Pone en descanso los días que la persona ya no entrena, sin tocar la IA.
- * Solo apaga días (no puede prender uno nuevo: no hay ejercicios para
- * inventarle un día que la IA nunca armó). Para eso sigue existiendo
+ * Prende o apaga días según lo que la persona marcó, sin tocar la IA.
+ * Al apagar un día no se borran sus ejercicios (quedan guardados en el
+ * plan aunque no se muestren), así que si la persona lo vuelve a marcar
+ * como entreno, se reactiva con lo que ya tenía. Solo se queda en
+ * descanso permanente un día que nunca tuvo ejercicios (porque la IA lo
+ * armó como descanso desde el principio) — para ese caso sigue existiendo
  * `regenerarRutina`.
  */
 export function syncRestDays(userId, trainingDays) {
@@ -132,8 +135,15 @@ export function syncRestDays(userId, trainingDays) {
   if (!actual) return null;
 
   const dias = actual.plan.dias.map((dia) => {
-    if (dia.rest || trainingDays.includes(dia.dia)) return dia;
-    return { ...dia, rest: true, ejercicios: [] };
+    const entrenaEsteDia = trainingDays.includes(dia.dia);
+
+    if (entrenaEsteDia) {
+      if (!dia.rest || dia.ejercicios?.length === 0) return dia;
+      return { ...dia, rest: false };
+    }
+
+    if (dia.rest) return dia;
+    return { ...dia, rest: true };
   });
 
   const plan = { ...actual.plan, dias };
