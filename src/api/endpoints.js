@@ -28,6 +28,7 @@ export const rutina = {
   obtener: () => api.get('/api/routine'),
   generar: () => api.post('/api/routine/generate', undefined, { timeout: TIMEOUTS.ia }),
   actualizarDias: (trainingDays) => api.patch('/api/routine/days', { trainingDays }),
+  reordenar: (order) => api.patch('/api/routine/order', { order }),
 };
 
 export const comidas = {

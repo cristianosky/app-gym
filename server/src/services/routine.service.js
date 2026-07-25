@@ -13,6 +13,7 @@ import { hydrate, WARMUP, STRETCH } from '../data/catalog.js';
 import { aiRoutineSchema, ejerciciosValidos } from '../validation/ai-output.js';
 import { buildFallbackRoutine } from './fallback-routine.js';
 import * as planRepo from '../repositories/plan.repo.js';
+import { badRequest } from '../utils/app-error.js';
 
 /** Mínimo de ejercicios para que un día de entrenamiento se considere válido. */
 const MINIMO_POR_DIA = 3;
@@ -144,6 +145,38 @@ export function syncRestDays(userId, trainingDays) {
 
     if (dia.rest) return dia;
     return { ...dia, rest: true };
+  });
+
+  const plan = { ...actual.plan, dias };
+  return planRepo.save('rutina', userId, plan, actual.source);
+}
+
+/**
+ * Cambia qué rutina de entreno le toca a cada día de la semana, sin tocar
+ * la IA ni el calendario: cada día de la semana sigue siendo el mismo
+ * (lunes sigue siendo lunes), solo se reparte distinto el contenido entre
+ * los días que la persona entrena.
+ * @param {string} userId
+ * @param {number[]} trainingDays días de entreno vigentes en el perfil
+ * @param {number[]} order permutación de `trainingDays`: la posición i dice
+ *   qué día (su contenido original) pasa a ocupar el i-ésimo día de entreno.
+ */
+export function reorderRoutine(userId, trainingDays, order) {
+  const actual = planRepo.findCurrent('rutina', userId);
+  if (!actual) return null;
+
+  const diasEntreno = [...trainingDays].sort((a, b) => a - b);
+  const mismoConjunto = order.length === diasEntreno.length && diasEntreno.every((d) => order.includes(d));
+  if (!mismoConjunto) {
+    throw badRequest('El orden debe incluir exactamente los días que entrena, sin repetir ninguno.');
+  }
+
+  const contenidoPorDia = new Map(actual.plan.dias.map((dia) => [dia.dia, dia]));
+
+  const dias = actual.plan.dias.map((dia) => {
+    const posicion = diasEntreno.indexOf(dia.dia);
+    if (posicion === -1) return dia;
+    return { ...contenidoPorDia.get(order[posicion]), dia: dia.dia };
   });
 
   const plan = { ...actual.plan, dias };

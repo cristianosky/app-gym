@@ -8,8 +8,8 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler.js';
 import { requireAuth } from '../middleware/auth.js';
 import { generateLimiter } from '../middleware/rate-limit.js';
-import { parseBody, routineDaysSchema } from '../validation/schemas.js';
-import { generateRoutine, getCurrentRoutine, syncRestDays } from '../services/routine.service.js';
+import { parseBody, routineDaysSchema, routineOrderSchema } from '../validation/schemas.js';
+import { generateRoutine, getCurrentRoutine, syncRestDays, reorderRoutine } from '../services/routine.service.js';
 import { generateNutrition, getCurrentNutrition } from '../services/nutrition.service.js';
 
 export const routineRouter = Router();
@@ -37,6 +37,18 @@ routineRouter.patch(
   asyncHandler(async (req, res) => {
     const { trainingDays } = parseBody(routineDaysSchema, req.body);
     const guardado = syncRestDays(req.user.id, trainingDays);
+    res.json({
+      ok: true,
+      routine: guardado ? { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt } : null,
+    });
+  }),
+);
+
+routineRouter.patch(
+  '/order',
+  asyncHandler(async (req, res) => {
+    const { order } = parseBody(routineOrderSchema, req.body);
+    const guardado = reorderRoutine(req.user.id, req.user.profile.trainingDays, order);
     res.json({
       ok: true,
       routine: guardado ? { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt } : null,

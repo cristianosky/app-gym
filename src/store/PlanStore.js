@@ -352,6 +352,16 @@ export function PlanProvider({ children }) {
     }
   }, []);
 
+  /** Cambia qué rutina le toca a cada día de la semana, sin tocar la IA. */
+  const reordenarRutina = useCallback(async (order) => {
+    const respuesta = await endpoints.rutina.reordenar(order);
+    if (respuesta.routine?.plan) {
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+    }
+    return respuesta;
+  }, []);
+
   /** Vuelve a pedirle la rutina a la IA con el perfil actual. */
   const regenerarRutina = useCallback(async () => {
     setCargando(true);
@@ -472,6 +482,7 @@ export function PlanProvider({ children }) {
       resetDay,
       regenerarRutina,
       sincronizarDiasDescanso,
+      reordenarRutina,
       cargarComidas,
       descargar,
       weekStats,
@@ -480,7 +491,7 @@ export function PlanProvider({ children }) {
     [
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
-      regenerarRutina, sincronizarDiasDescanso, cargarComidas, descargar, weekStats, streak,
+      regenerarRutina, sincronizarDiasDescanso, reordenarRutina, cargarComidas, descargar, weekStats, streak,
     ],
   );
 

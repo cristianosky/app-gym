@@ -14,6 +14,7 @@ import Button from '../components/Button';
 import { PasoCuerpo } from './auth/steps/PasosPersonales';
 import { PasoNivelLugar, PasoObjetivos, PasoDias } from './auth/steps/PasosEntrenamiento';
 import { PasoComida } from './auth/steps/PasosFinales';
+import OrdenSemana from '../components/OrdenSemana';
 import { useAuth } from '../store/AuthStore';
 import { usePlan } from '../store/PlanStore';
 import * as endpoints from '../api/endpoints';
@@ -161,6 +162,8 @@ export default function EditProfileModal({ visible, onClose }) {
             <PasoObjetivos {...contexto} />
             <Separador />
             <PasoDias {...contexto} />
+            <Separador />
+            <OrdenSemana />
             <Separador />
             <PasoComida {...contexto} />
 

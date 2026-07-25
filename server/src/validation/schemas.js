@@ -64,6 +64,11 @@ export const routineDaysSchema = z.object({
   trainingDays: profileSchema.shape.trainingDays,
 });
 
+/** Nuevo orden de las rutinas de entreno dentro de la semana vigente. */
+export const routineOrderSchema = z.object({
+  order: z.array(z.number().int().min(1).max(7)).min(1).max(7),
+});
+
 export const registerSchema = z.object({
   name: z
     .string()
