@@ -23,10 +23,7 @@ export default function TodayScreen() {
     rutina, origenRutina, nombre, descargar, cargando,
   } = usePlan();
 
-  // TEMPORAL — solo para probar: fuerza "hoy" a lunes 27/07/2026.
-  // Para volver a la fecha real, deje solo `const today = new Date();`.
-  const today = new Date(2026, 6, 27);
-  // const today = new Date();
+  const today = new Date();
   const key = dayKey(today);
 
   const [detail, setDetail] = useState(null);
@@ -57,7 +54,7 @@ export default function TodayScreen() {
     const msg = mensajeDelDia(MENSAJES_DESCANSO, today);
     return (
       <ScrollView style={styles.screen} contentContainerStyle={styles.content} refreshControl={refrescar}>
-        <Header nombre={nombre} />
+        <Header nombre={nombre} today={today} />
         <View style={styles.restCard}>
           <View style={[styles.restIconWrap, { backgroundColor: alpha(colors.rest, 0.16) }]}>
             <Icon set="mci" name="power-sleep" size={44} color={colors.rest} />
@@ -84,7 +81,7 @@ export default function TodayScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={refrescar}
       >
-        <Header nombre={nombre} />
+        <Header nombre={nombre} today={today} />
 
         {/* La rutina de respaldo no está personalizada: hay que decirlo. */}
         {origenRutina === 'respaldo' && (
@@ -196,7 +193,7 @@ export default function TodayScreen() {
   );
 }
 
-function Header({ nombre }) {
+function Header({ nombre, today }) {
   const primerNombre = nombre?.split(' ')[0] ?? '';
   return (
     <View style={styles.header}>
@@ -206,7 +203,7 @@ function Header({ nombre }) {
         </Text>
         <Icon set="mci" name="dumbbell" size={22} color={colors.primary} />
       </View>
-      <Text style={styles.date}>{capitalize(longDate())}</Text>
+      <Text style={styles.date}>{capitalize(longDate(today))}</Text>
     </View>
   );
 }
