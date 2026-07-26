@@ -9,7 +9,7 @@
 import { genai, MODELS, extractText } from '../ai/client.js';
 import { routinePrompt } from '../ai/prompts.js';
 import { ROUTINE_SCHEMA } from '../ai/schemas.js';
-import { hydrate, getExercise, alternativesFor, WARMUP, STRETCH } from '../data/catalog.js';
+import { hydrate, getExercise, alternativesFor, warmupStretchForDay } from '../data/catalog.js';
 import { aiRoutineSchema, ejerciciosValidos } from '../validation/ai-output.js';
 import { buildFallbackRoutine } from './fallback-routine.js';
 import * as planRepo from '../repositories/plan.repo.js';
@@ -34,14 +34,15 @@ function armarPlan(crudo) {
 
       const prescripciones = ejerciciosValidos(dia.ejercicios);
       const ejercicios = prescripciones.map(hydrate).filter(Boolean);
+      const { warmup, stretch } = warmupStretchForDay(dia.dia);
 
       return {
         ...dia,
         rest: false,
         ejercicios: [
-          { ...WARMUP, sets: 1, reps: '5-8 min', rest: 0, note: null },
+          { ...warmup.block, sets: 1, reps: warmup.reps, rest: 0, note: null },
           ...ejercicios,
-          { ...STRETCH, sets: 1, reps: '5 min', rest: 0, note: null },
+          { ...stretch.block, sets: 1, reps: stretch.reps, rest: 0, note: null },
         ],
       };
     });

@@ -42,11 +42,51 @@ export const EXERCISES = Object.freeze([
   ...CARDIO,
 ]);
 
-/** Calentamiento y estiramiento: los añade el servidor, no la IA. */
+/** Calentamiento y estiramiento genéricos: respaldo para sábado y domingo. */
 export const WARMUP = BLOQUES.find((b) => b.id === 'calentamiento');
 export const STRETCH = BLOQUES.find((b) => b.id === 'estiramiento');
 
 const BY_ID = new Map([...EXERCISES, ...BLOQUES].map((ex) => [ex.id, ex]));
+
+/**
+ * Calentamiento y cierre de cardio, fijos por día de la semana (lunes=1 ...
+ * viernes=5). Sábado y domingo no tienen entrada aquí y usan el genérico.
+ */
+const CALENTAMIENTO_ID_POR_DIA = {
+  1: 'calentamiento-caminadora',
+  2: 'calentamiento-bicicleta',
+  3: 'calentamiento-caminadora',
+  4: 'calentamiento-bicicleta',
+  5: 'calentamiento-eliptica-caminadora',
+};
+
+const FINAL_POR_DIA = {
+  1: { id: 'final-caminadora', reps: '15 min' },
+  2: { id: 'final-bicicleta', reps: '15-20 min' },
+  3: { id: 'final-bicicleta', reps: '15 min' },
+  4: { id: 'final-caminadora', reps: '15 min' },
+  5: { id: 'final-libre', reps: '20 min' },
+};
+
+/**
+ * Bloques de calentamiento y cierre que le corresponden a un día de la
+ * semana (1=lunes ... 7=domingo), con la duración ya lista para mostrar.
+ * @param {number} dia
+ * @returns {{ warmup: {block: object, reps: string}, stretch: {block: object, reps: string} }}
+ */
+export function warmupStretchForDay(dia) {
+  const calentamientoId = CALENTAMIENTO_ID_POR_DIA[dia];
+  const final = FINAL_POR_DIA[dia];
+
+  return {
+    warmup: calentamientoId
+      ? { block: getExercise(calentamientoId), reps: '7 min' }
+      : { block: WARMUP, reps: '5-8 min' },
+    stretch: final
+      ? { block: getExercise(final.id), reps: final.reps }
+      : { block: STRETCH, reps: '5 min' },
+  };
+}
 
 /** Busca un ejercicio por id. Devuelve null si no existe. */
 export function getExercise(id) {
