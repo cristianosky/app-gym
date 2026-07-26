@@ -23,7 +23,6 @@ import ConfirmModal from './ConfirmModal';
 import { getLocalVideo } from '../data/localVideos';
 import { getLocalGif } from '../data/localGifs';
 import { usePlan } from '../store/PlanStore';
-import { Alert } from '../utils/alert';
 
 const GROUP_LABEL = {
   pecho: 'Pecho', espalda: 'Espalda', pierna: 'Pierna', hombro: 'Hombro',
@@ -35,6 +34,7 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
   const [mostrarVideo, setMostrarVideo] = useState(false);
   const [cambiando, setCambiando] = useState(false);
   const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
+  const [errorQuitar, setErrorQuitar] = useState(null);
 
   if (!exercise) return null;
 
@@ -55,7 +55,7 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
       await quitarEjercicio(day, exercise.id);
       cerrar();
     } catch (err) {
-      Alert.alert('No se pudo quitar', err.message);
+      setErrorQuitar(err.message);
     }
   };
 
@@ -223,6 +223,16 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
       message={`"${exercise.name}" se quita del día. Puede agregarlo de nuevo cuando quiera.`}
       confirmText="Quitar"
       cancelText="Cancelar"
+      destructive
+    />
+
+    <ConfirmModal
+      visible={Boolean(errorQuitar)}
+      onClose={() => setErrorQuitar(null)}
+      icon="alert-circle-outline"
+      title="No se pudo quitar"
+      message={errorQuitar}
+      confirmText="Entendido"
       destructive
     />
     </>

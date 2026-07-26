@@ -41,7 +41,7 @@ export default function WeekScreen() {
         const isToday = idx === todayIdx;
         const expanded = open === idx;
 
-        // Estado real de esa fecha en la semana actual
+        // Estado real de esa fecha en la semana actual.
         const dayState = getDay(weekKeys[idx - 1]);
         const status = plan.rest ? 'rest' : dayState.status;
         const trainCount = plan.exercises.filter((e) => !e.isWarmup && !e.isStretch).length;

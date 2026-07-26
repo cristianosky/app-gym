@@ -5,7 +5,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
-import { Alert } from '../utils/alert';
 import { usePlan } from '../store/PlanStore';
 import { useAuth } from '../store/AuthStore';
 import ProgressBar from '../components/ProgressBar';
@@ -110,26 +109,18 @@ function SeccionCuenta() {
   const [editandoPerfil, setEditandoPerfil] = useState(false);
   const [cambiandoPin, setCambiandoPin] = useState(false);
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);
+  const [confirmandoRearmar, setConfirmandoRearmar] = useState(false);
 
-  const regenerar = () => {
-    Alert.alert(
-      'Armar la rutina de nuevo',
-      'El asistente le va a armar una rutina nueva con sus datos actuales. La que tiene ahora se reemplaza. ¿Sigue?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Armar de nuevo',
-          onPress: async () => {
-            setError(null);
-            try {
-              await regenerarRutina();
-            } catch (err) {
-              setError(err.message);
-            }
-          },
-        },
-      ],
-    );
+  const regenerar = () => setConfirmandoRearmar(true);
+
+  const confirmarRegenerar = async () => {
+    setConfirmandoRearmar(false);
+    setError(null);
+    try {
+      await regenerarRutina();
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const salir = () => setConfirmandoSalida(true);
@@ -178,6 +169,16 @@ function SeccionCuenta() {
         confirmText="Cerrar sesión"
         cancelText="Cancelar"
         destructive
+      />
+      <ConfirmModal
+        visible={confirmandoRearmar}
+        onClose={() => setConfirmandoRearmar(false)}
+        onConfirm={confirmarRegenerar}
+        icon="sparkles"
+        title="Armar la rutina de nuevo"
+        message="El asistente le va a armar una rutina nueva con sus datos actuales. La que tiene ahora se reemplaza. ¿Sigue?"
+        confirmText="Armar de nuevo"
+        cancelText="Cancelar"
       />
     </View>
   );

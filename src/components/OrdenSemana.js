@@ -6,8 +6,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, spacing, font, family, radius } from '../theme';
-import { Alert } from '../utils/alert';
 import Icon from './Icon';
+import ConfirmModal from './ConfirmModal';
 import { usePlan } from '../store/PlanStore';
 
 const DAY_NAMES = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
@@ -20,6 +20,7 @@ export default function OrdenSemana() {
 
   const [orden, setOrden] = useState(diasSemana);
   const [guardando, setGuardando] = useState(false);
+  const [errorGuardar, setErrorGuardar] = useState(null);
 
   useEffect(() => {
     setOrden(diasSemana);
@@ -44,7 +45,7 @@ export default function OrdenSemana() {
     try {
       await reordenarRutina(orden);
     } catch (err) {
-      Alert.alert('No se pudo guardar', err.message ?? 'Intente de nuevo.');
+      setErrorGuardar(err.message ?? 'Intente de nuevo.');
     } finally {
       setGuardando(false);
     }
@@ -107,6 +108,16 @@ export default function OrdenSemana() {
           <Text style={styles.guardarTexto}>{guardando ? 'Guardando…' : 'Guardar este orden'}</Text>
         </Pressable>
       )}
+
+      <ConfirmModal
+        visible={Boolean(errorGuardar)}
+        onClose={() => setErrorGuardar(null)}
+        icon="alert-circle-outline"
+        title="No se pudo guardar"
+        message={errorGuardar}
+        confirmText="Entendido"
+        destructive
+      />
     </View>
   );
 }

@@ -1,7 +1,9 @@
 /**
- * Confirmación genérica con el estilo de la app, en vez del Alert nativo del
- * sistema (que en Android/iOS/web se ve distinto y no combina con el tema
- * oscuro). Úsela para preguntar "¿seguro?" antes de una acción importante.
+ * Confirmación y aviso genéricos con el estilo de la app, en vez del Alert
+ * nativo del sistema (que en Android/iOS/web se ve distinto y no combina con
+ * el tema oscuro). Úsela para preguntar "¿seguro?" antes de una acción
+ * importante, o como aviso simple si no pasa `onConfirm` (queda un solo
+ * botón que cierra).
  */
 import React from 'react';
 import { Modal, View, Text, StyleSheet } from 'react-native';
@@ -21,6 +23,7 @@ export default function ConfirmModal({
   destructive = false,
 }) {
   const acento = destructive ? colors.danger : colors.warning;
+  const soloAviso = !onConfirm;
 
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
@@ -34,13 +37,19 @@ export default function ConfirmModal({
           {message ? <Text style={styles.sub}>{message}</Text> : null}
 
           <View style={styles.acciones}>
-            <Button label={cancelText} variant="secondary" onPress={onClose} style={styles.boton} />
-            <Button
-              label={confirmText}
-              variant={destructive ? 'danger' : 'primary'}
-              onPress={onConfirm}
-              style={styles.boton}
-            />
+            {soloAviso ? (
+              <Button label={confirmText} variant="primary" onPress={onClose} style={styles.boton} />
+            ) : (
+              <>
+                <Button label={cancelText} variant="secondary" onPress={onClose} style={styles.boton} />
+                <Button
+                  label={confirmText}
+                  variant={destructive ? 'danger' : 'primary'}
+                  onPress={onConfirm}
+                  style={styles.boton}
+                />
+              </>
+            )}
           </View>
         </View>
       </View>

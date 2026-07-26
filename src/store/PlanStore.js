@@ -244,7 +244,9 @@ export function PlanProvider({ children }) {
 
   /** Estado completo de un día: qué toca, cómo va y qué lleva marcado. */
   const getDay = useCallback(
-    (key, fecha = new Date()) => {
+    // `fecha` por defecto sale de `key`, no de "ahora": si se omite, cada
+    // día debe seguir siendo él mismo y no heredar el día de hoy.
+    (key, fecha = new Date(`${key}T00:00:00`)) => {
       const guardado = progreso[key];
       const planDay = guardado?.planDay ?? planDayPara(key, fecha);
       const plan = getDayPlan(planDay);

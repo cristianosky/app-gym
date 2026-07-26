@@ -9,9 +9,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Modal, View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { colors, spacing, font, family, radius, alpha } from '../theme';
-import { Alert } from '../utils/alert';
 import Icon from '../components/Icon';
 import Button from '../components/Button';
+import ConfirmModal from '../components/ConfirmModal';
 import { PasoCuerpo } from './auth/steps/PasosPersonales';
 import { PasoNivelLugar, PasoObjetivos, PasoDias } from './auth/steps/PasosEntrenamiento';
 import { PasoComida } from './auth/steps/PasosFinales';
@@ -66,6 +66,7 @@ export default function EditProfileModal({ visible, onClose }) {
   const [errores, setErrores] = useState({});
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState(null);
+  const [preguntandoRearmar, setPreguntandoRearmar] = useState(false);
 
   // Cada vez que se abre, se parte de los datos guardados en el servidor.
   useEffect(() => {
@@ -126,14 +127,7 @@ export default function EditProfileModal({ visible, onClose }) {
       sincronizarDiasDescanso(datos.trainingDays);
 
       onClose();
-      Alert.alert(
-        'Perfil actualizado',
-        'Quedó guardado. ¿Quiere que le arme la rutina de nuevo con estos datos?',
-        [
-          { text: 'Más tarde', style: 'cancel' },
-          { text: 'Armar de nuevo', onPress: () => regenerarRutina().catch(() => {}) },
-        ],
-      );
+      setPreguntandoRearmar(true);
     } catch (err) {
       setError(err.message);
       if (err.campos) setErrores((previo) => ({ ...previo, ...err.campos }));
@@ -143,6 +137,7 @@ export default function EditProfileModal({ visible, onClose }) {
   }, [datos, actualizarPerfil, onClose, regenerarRutina, sincronizarDiasDescanso]);
 
   return (
+    <>
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.header}>
@@ -184,6 +179,21 @@ export default function EditProfileModal({ visible, onClose }) {
         ) : null}
       </KeyboardAvoidingView>
     </Modal>
+
+    <ConfirmModal
+      visible={preguntandoRearmar}
+      onClose={() => setPreguntandoRearmar(false)}
+      onConfirm={() => {
+        setPreguntandoRearmar(false);
+        regenerarRutina().catch(() => {});
+      }}
+      icon="sparkles"
+      title="Perfil actualizado"
+      message="Quedó guardado. ¿Quiere que le arme la rutina de nuevo con estos datos?"
+      confirmText="Armar de nuevo"
+      cancelText="Más tarde"
+    />
+    </>
   );
 }
 

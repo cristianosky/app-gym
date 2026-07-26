@@ -12,9 +12,9 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors, radius, spacing, font, family, alpha } from '../theme';
-import { Alert } from '../utils/alert';
 import Icon from '../components/Icon';
 import ChatBubble from '../components/ChatBubble';
+import ConfirmModal from '../components/ConfirmModal';
 import * as endpoints from '../api/endpoints';
 import { usePlan } from '../store/PlanStore';
 
@@ -38,6 +38,8 @@ export default function CoachScreen() {
   const [enviando, setEnviando] = useState(false);
   const [cargandoHistorial, setCargandoHistorial] = useState(true);
   const [error, setError] = useState(null);
+  const [avisoPermiso, setAvisoPermiso] = useState(null);
+  const [confirmandoLimpiar, setConfirmandoLimpiar] = useState(false);
 
   const scrollRef = useRef(null);
 
@@ -73,8 +75,7 @@ export default function CoachScreen() {
           : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permiso.granted) {
-        Alert.alert(
-          'Permiso necesario',
+        setAvisoPermiso(
           origen === 'camara'
             ? 'Para tomar la foto necesitamos permiso de la cámara. Actívelo en los ajustes del celular.'
             : 'Para escoger la foto necesitamos permiso de sus fotos. Actívelo en los ajustes del celular.',
@@ -154,28 +155,23 @@ export default function CoachScreen() {
     [texto, imagenes, enviando],
   );
 
-  const limpiar = () => {
-    Alert.alert('Borrar la conversación', '¿Seguro que quiere borrar todo el chat?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Borrar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await endpoints.asistente.limpiar();
-            setMensajes([]);
-          } catch (err) {
-            setError(err.message);
-          }
-        },
-      },
-    ]);
+  const limpiar = () => setConfirmandoLimpiar(true);
+
+  const confirmarLimpiar = async () => {
+    setConfirmandoLimpiar(false);
+    try {
+      await endpoints.asistente.limpiar();
+      setMensajes([]);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const puedeEnviar = (texto.trim().length > 0 || imagenes.length > 0) && !enviando;
   const vacio = mensajes.length === 0 && !cargandoHistorial;
 
   return (
+    <>
     <KeyboardAvoidingView
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -308,6 +304,28 @@ export default function CoachScreen() {
         </Pressable>
       </View>
     </KeyboardAvoidingView>
+
+    <ConfirmModal
+      visible={Boolean(avisoPermiso)}
+      onClose={() => setAvisoPermiso(null)}
+      icon="alert-circle-outline"
+      title="Permiso necesario"
+      message={avisoPermiso}
+      confirmText="Entendido"
+    />
+
+    <ConfirmModal
+      visible={confirmandoLimpiar}
+      onClose={() => setConfirmandoLimpiar(false)}
+      onConfirm={confirmarLimpiar}
+      icon="trash-can-outline"
+      title="Borrar la conversación"
+      message="¿Seguro que quiere borrar todo el chat?"
+      confirmText="Borrar"
+      cancelText="Cancelar"
+      destructive
+    />
+    </>
   );
 }
 
