@@ -9,11 +9,11 @@
 import { genai, MODELS, extractText } from '../ai/client.js';
 import { routinePrompt } from '../ai/prompts.js';
 import { ROUTINE_SCHEMA } from '../ai/schemas.js';
-import { hydrate, WARMUP, STRETCH } from '../data/catalog.js';
+import { hydrate, getExercise, alternativesFor, WARMUP, STRETCH } from '../data/catalog.js';
 import { aiRoutineSchema, ejerciciosValidos } from '../validation/ai-output.js';
 import { buildFallbackRoutine } from './fallback-routine.js';
 import * as planRepo from '../repositories/plan.repo.js';
-import { badRequest } from '../utils/app-error.js';
+import { badRequest, notFound } from '../utils/app-error.js';
 
 /** Mínimo de ejercicios para que un día de entrenamiento se considere válido. */
 const MINIMO_POR_DIA = 3;
@@ -177,6 +177,64 @@ export function reorderRoutine(userId, trainingDays, order) {
     const posicion = diasEntreno.indexOf(dia.dia);
     if (posicion === -1) return dia;
     return { ...contenidoPorDia.get(order[posicion]), dia: dia.dia };
+  });
+
+  const plan = { ...actual.plan, dias };
+  return planRepo.save('rutina', userId, plan, actual.source);
+}
+
+/**
+ * Ejercicios equivalentes a uno del día vigente (mismo grupo muscular,
+ * disponibles en el entorno de la persona, y que no estén ya ese día).
+ */
+export function getAlternatives(user, day, exerciseId) {
+  const actual = planRepo.findCurrent('rutina', user.id);
+  if (!actual) return [];
+
+  const dia = actual.plan.dias.find((d) => d.dia === day);
+  if (!dia) return [];
+
+  const usados = new Set(dia.ejercicios.map((ex) => ex.id));
+  return alternativesFor(exerciseId, user.profile.environment).filter((ex) => !usados.has(ex.id));
+}
+
+/**
+ * Cambia un ejercicio del día por otro que trabaje el mismo grupo muscular,
+ * conservando las series/repeticiones/descanso que ya tenía asignados (el
+ * cambio es de "qué máquina", no de "cuánto entrenar").
+ */
+export function replaceExercise(userId, day, exerciseId, replacementId) {
+  const actual = planRepo.findCurrent('rutina', userId);
+  if (!actual) throw notFound('Todavía no tiene una rutina guardada.');
+
+  const dia = actual.plan.dias.find((d) => d.dia === day);
+  if (!dia) throw badRequest('Ese día no existe en su rutina.');
+
+  const objetivo = dia.ejercicios.find((ex) => ex.id === exerciseId);
+  if (!objetivo || objetivo.isWarmup || objetivo.isStretch) {
+    throw badRequest('Ese ejercicio no se puede reemplazar.');
+  }
+
+  const reemplazo = getExercise(replacementId);
+  if (!reemplazo) throw badRequest('El ejercicio de reemplazo no existe.');
+  if (reemplazo.group !== objetivo.group) {
+    throw badRequest('El reemplazo debe trabajar el mismo grupo muscular.');
+  }
+  if (dia.ejercicios.some((ex) => ex.id === replacementId)) {
+    throw badRequest('Ese ejercicio ya está en el día.');
+  }
+
+  const nuevo = hydrate({
+    exerciseId: replacementId,
+    sets: objetivo.sets,
+    reps: objetivo.reps,
+    rest: objetivo.rest,
+    note: objetivo.note,
+  });
+
+  const dias = actual.plan.dias.map((d) => {
+    if (d.dia !== day) return d;
+    return { ...d, ejercicios: d.ejercicios.map((ex) => (ex.id === exerciseId ? nuevo : ex)) };
   });
 
   const plan = { ...actual.plan, dias };

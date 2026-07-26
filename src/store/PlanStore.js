@@ -362,6 +362,22 @@ export function PlanProvider({ children }) {
     return respuesta;
   }, []);
 
+  /** Ejercicios que trabajan el mismo grupo muscular, para reemplazar uno del día. */
+  const alternativasPara = useCallback(async (day, exerciseId) => {
+    const respuesta = await endpoints.rutina.alternativas(day, exerciseId);
+    return respuesta.alternativas ?? [];
+  }, []);
+
+  /** Cambia un ejercicio del día por otro equivalente, sin tocar la IA. */
+  const reemplazarEjercicio = useCallback(async (day, exerciseId, replacementId) => {
+    const respuesta = await endpoints.rutina.reemplazarEjercicio(day, exerciseId, replacementId);
+    if (respuesta.routine?.plan) {
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+    }
+    return respuesta;
+  }, []);
+
   /** Vuelve a pedirle la rutina a la IA con el perfil actual. */
   const regenerarRutina = useCallback(async () => {
     setCargando(true);
@@ -483,6 +499,8 @@ export function PlanProvider({ children }) {
       regenerarRutina,
       sincronizarDiasDescanso,
       reordenarRutina,
+      alternativasPara,
+      reemplazarEjercicio,
       cargarComidas,
       descargar,
       weekStats,
@@ -491,7 +509,8 @@ export function PlanProvider({ children }) {
     [
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
-      regenerarRutina, sincronizarDiasDescanso, reordenarRutina, cargarComidas, descargar, weekStats, streak,
+      regenerarRutina, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
+      cargarComidas, descargar, weekStats, streak,
     ],
   );
 

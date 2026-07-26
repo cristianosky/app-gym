@@ -10,6 +10,7 @@ import { usePlan } from '../store/PlanStore';
 import { weekdayIndex, currentWeekKeys } from '../utils/dates';
 import Icon from '../components/Icon';
 import SinRutina from '../components/SinRutina';
+import ExerciseDetailModal from '../components/ExerciseDetailModal';
 
 const DAY_NAMES = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
 
@@ -18,12 +19,14 @@ export default function WeekScreen() {
   const todayIdx = weekdayIndex();
   const weekKeys = currentWeekKeys(); // claves Lunes..Domingo de esta semana
   const [open, setOpen] = useState(todayIdx);
+  const [detalle, setDetalle] = useState(null);
 
   if (!rutina) return <SinRutina />;
 
   const diasEntreno = rutina.dias.filter((d) => !d.rest).length;
 
   return (
+    <>
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Su semana</Text>
       <Text style={styles.subtitle}>
@@ -82,11 +85,18 @@ export default function WeekScreen() {
                 {plan.exercises.map((ex) => {
                   const exAccent = colors[ex.group] || colors.primary;
                   return (
-                    <View key={ex.id} style={styles.exRow}>
+                    <Pressable
+                      key={ex.id}
+                      onPress={() => setDetalle({ exercise: ex, day: idx })}
+                      style={({ pressed }) => [styles.exRow, pressed && styles.exRowPressed]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ver detalle de ${ex.name}`}
+                    >
                       <View style={[styles.exDot, { backgroundColor: exAccent }]} />
                       <Text style={styles.exName} numberOfLines={1}>{ex.name}</Text>
                       <Text style={styles.exMeta}>{ex.sets}×{ex.reps}</Text>
-                    </View>
+                      <Icon name="chevron-forward" size={14} color={colors.textFaint} />
+                    </Pressable>
                   );
                 })}
               </View>
@@ -104,6 +114,14 @@ export default function WeekScreen() {
         );
       })}
     </ScrollView>
+
+    <ExerciseDetailModal
+      exercise={detalle?.exercise}
+      day={detalle?.day}
+      visible={!!detalle}
+      onClose={() => setDetalle(null)}
+    />
+    </>
   );
 }
 
@@ -145,7 +163,8 @@ const styles = StyleSheet.create({
   statusDot: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginLeft: spacing.sm },
 
   exList: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, backgroundColor: colors.bg },
-  exRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7 },
+  exRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 6, minHeight: 32 },
+  exRowPressed: { opacity: 0.65 },
   exDot: { width: 7, height: 7, borderRadius: 4, marginRight: spacing.sm },
   exName: { flex: 1, color: colors.text, fontSize: font.body, fontFamily: family.body },
   exMeta: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodySemi },

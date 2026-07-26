@@ -67,6 +67,24 @@ export function exercisesForEnv(entorno) {
 }
 
 /**
+ * Ejercicios que trabajan el mismo grupo muscular que uno dado, para
+ * reemplazarlo cuando la máquina no está, está ocupada o no le gusta a la
+ * persona, sin perder el objetivo de ese día. Los del mismo patrón de
+ * movimiento (empuje, tracción, etc.) van primero: son el reemplazo más fiel.
+ */
+export function alternativesFor(exerciseId, entorno) {
+  const actual = getExercise(exerciseId);
+  if (!actual) return [];
+
+  const candidatos = EXERCISES.filter(
+    (ex) => ex.id !== exerciseId && ex.group === actual.group && ex.envs.includes(entorno),
+  );
+  const mismoPatron = candidatos.filter((ex) => ex.pattern === actual.pattern);
+  const otroPatron = candidatos.filter((ex) => ex.pattern !== actual.pattern);
+  return [...mismoPatron, ...otroPatron];
+}
+
+/**
  * Resumen compacto del catálogo para meterlo en el prompt de la IA.
  * Solo lo mínimo que necesita para escoger bien: id, nombre, grupo, patrón,
  * equipo y nivel. La ficha completa la añade el servidor después.

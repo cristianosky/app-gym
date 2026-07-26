@@ -69,6 +69,18 @@ export const routineOrderSchema = z.object({
   order: z.array(z.number().int().min(1).max(7)).min(1).max(7),
 });
 
+/** Qué día consultar para ver ejercicios equivalentes a uno del plan. */
+export const alternativesQuerySchema = z.object({
+  day: z.coerce.number().int().min(1).max(7),
+});
+
+/** Cambiar un ejercicio del día por otro equivalente. */
+export const replaceExerciseSchema = z.object({
+  day: z.number().int().min(1).max(7),
+  exerciseId: z.string().min(1),
+  replacementId: z.string().min(1),
+});
+
 export const registerSchema = z.object({
   name: z
     .string()

@@ -18,6 +18,7 @@ import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
 import VideoPlayer from './VideoPlayer';
 import Icon from './Icon';
+import ReplaceExerciseModal from './ReplaceExerciseModal';
 import { getLocalVideo } from '../data/localVideos';
 import { getLocalGif } from '../data/localGifs';
 
@@ -26,8 +27,9 @@ const GROUP_LABEL = {
   brazo: 'Brazo', core: 'Core', cardio: 'Cardio', cuerpo: 'Cuerpo completo',
 };
 
-export default function ExerciseDetailModal({ exercise, visible, onClose }) {
+export default function ExerciseDetailModal({ exercise, day, visible, onClose }) {
   const [mostrarVideo, setMostrarVideo] = useState(false);
+  const [cambiando, setCambiando] = useState(false);
 
   if (!exercise) return null;
 
@@ -35,6 +37,7 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
   const videoLocal = getLocalVideo(exercise.localVideo);
   const gifLocal = getLocalGif(exercise.id);
   const hayEjemplo = Boolean(videoLocal || gifLocal || exercise.video);
+  const sePuedeCambiar = Boolean(day) && !exercise.isWarmup && !exercise.isStretch;
 
   const cerrar = () => {
     setMostrarVideo(false);
@@ -42,6 +45,7 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
   };
 
   return (
+    <>
     <Modal visible={visible} animationType="slide" transparent onRequestClose={cerrar}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
@@ -103,6 +107,18 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
               <Stat icon="time-outline" label="Descanso" value={exercise.rest > 0 ? `${exercise.rest}s` : '—'} />
             </View>
 
+            {sePuedeCambiar && (
+              <Pressable
+                onPress={() => setCambiando(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Cambiar este ejercicio por otro equivalente"
+                style={({ pressed }) => [styles.cambiarBtn, pressed && { opacity: 0.75 }]}
+              >
+                <Icon name="swap-horizontal" size={18} color={colors.textMuted} />
+                <Text style={styles.cambiarBtnText}>¿No puede hacer este? Cambiarlo por otro</Text>
+              </Pressable>
+            )}
+
             {/* Ajuste que el asistente escribió para esta persona en concreto. */}
             {exercise.note ? (
               <Aviso
@@ -159,6 +175,18 @@ export default function ExerciseDetailModal({ exercise, visible, onClose }) {
         </View>
       </View>
     </Modal>
+
+    <ReplaceExerciseModal
+      visible={cambiando}
+      day={day}
+      exercise={exercise}
+      onClose={() => setCambiando(false)}
+      onReplaced={() => {
+        setCambiando(false);
+        cerrar();
+      }}
+    />
+    </>
   );
 }
 
@@ -239,6 +267,17 @@ const styles = StyleSheet.create({
   stat: { flex: 1, alignItems: 'center' },
   statValue: { color: colors.text, fontSize: font.h3, fontFamily: family.bodyBold },
   statLabel: { color: colors.textMuted, fontSize: font.tiny, fontFamily: family.bodyMedium, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
+
+  cambiarBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.sm + 2,
+    marginBottom: spacing.lg,
+    minHeight: 40,
+  },
+  cambiarBtnText: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodySemi, textDecorationLine: 'underline' },
 
   aviso: {
     flexDirection: 'row',

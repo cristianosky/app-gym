@@ -163,7 +163,7 @@ export default function TodayScreen() {
         </View>
       </ScrollView>
 
-      <ExerciseDetailModal exercise={detail} visible={!!detail} onClose={() => setDetail(null)} />
+      <ExerciseDetailModal exercise={detail} day={day.planDay} visible={!!detail} onClose={() => setDetail(null)} />
       <SkipModal
         visible={skipOpen}
         dayTitle={plan.title}

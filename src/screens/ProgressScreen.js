@@ -13,6 +13,7 @@ import Button from '../components/Button';
 import Icon from '../components/Icon';
 import EditProfileModal from './EditProfileModal';
 import ChangePinModal from './ChangePinModal';
+import ConfirmModal from '../components/ConfirmModal';
 import { weekdayIndex } from '../utils/dates';
 
 const DAY_LETTER = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -108,6 +109,7 @@ function SeccionCuenta() {
   const [error, setError] = useState(null);
   const [editandoPerfil, setEditandoPerfil] = useState(false);
   const [cambiandoPin, setCambiandoPin] = useState(false);
+  const [confirmandoSalida, setConfirmandoSalida] = useState(false);
 
   const regenerar = () => {
     Alert.alert(
@@ -130,12 +132,7 @@ function SeccionCuenta() {
     );
   };
 
-  const salir = () => {
-    Alert.alert('Cerrar sesión', '¿Seguro que quiere salir? Su progreso queda guardado.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Cerrar sesión', style: 'destructive', onPress: cerrarSesion },
-    ]);
-  };
+  const salir = () => setConfirmandoSalida(true);
 
   return (
     <View style={styles.card}>
@@ -168,6 +165,20 @@ function SeccionCuenta() {
 
       <EditProfileModal visible={editandoPerfil} onClose={() => setEditandoPerfil(false)} />
       <ChangePinModal visible={cambiandoPin} onClose={() => setCambiandoPin(false)} />
+      <ConfirmModal
+        visible={confirmandoSalida}
+        onClose={() => setConfirmandoSalida(false)}
+        onConfirm={() => {
+          setConfirmandoSalida(false);
+          cerrarSesion();
+        }}
+        icon="logout"
+        title="¿Cerrar sesión?"
+        message="Su progreso queda guardado. Puede volver a entrar cuando quiera con su usuario y PIN."
+        confirmText="Cerrar sesión"
+        cancelText="Cancelar"
+        destructive
+      />
     </View>
   );
 }

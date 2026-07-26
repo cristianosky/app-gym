@@ -8,8 +8,21 @@ import { Router } from 'express';
 import { asyncHandler } from '../middleware/error-handler.js';
 import { requireAuth } from '../middleware/auth.js';
 import { generateLimiter } from '../middleware/rate-limit.js';
-import { parseBody, routineDaysSchema, routineOrderSchema } from '../validation/schemas.js';
-import { generateRoutine, getCurrentRoutine, syncRestDays, reorderRoutine } from '../services/routine.service.js';
+import {
+  parseBody,
+  routineDaysSchema,
+  routineOrderSchema,
+  alternativesQuerySchema,
+  replaceExerciseSchema,
+} from '../validation/schemas.js';
+import {
+  generateRoutine,
+  getCurrentRoutine,
+  syncRestDays,
+  reorderRoutine,
+  getAlternatives,
+  replaceExercise,
+} from '../services/routine.service.js';
 import { generateNutrition, getCurrentNutrition } from '../services/nutrition.service.js';
 
 export const routineRouter = Router();
@@ -52,6 +65,27 @@ routineRouter.patch(
     res.json({
       ok: true,
       routine: guardado ? { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt } : null,
+    });
+  }),
+);
+
+routineRouter.get(
+  '/exercise/:exerciseId/alternativas',
+  asyncHandler(async (req, res) => {
+    const { day } = parseBody(alternativesQuerySchema, req.query);
+    const alternativas = getAlternatives(req.user, day, req.params.exerciseId);
+    res.json({ ok: true, alternativas });
+  }),
+);
+
+routineRouter.patch(
+  '/exercise',
+  asyncHandler(async (req, res) => {
+    const { day, exerciseId, replacementId } = parseBody(replaceExerciseSchema, req.body);
+    const guardado = replaceExercise(req.user.id, day, exerciseId, replacementId);
+    res.json({
+      ok: true,
+      routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
     });
   }),
 );
