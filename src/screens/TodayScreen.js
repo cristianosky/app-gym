@@ -13,6 +13,7 @@ import Icon from '../components/Icon';
 import ProgressBar from '../components/ProgressBar';
 import ExerciseCard from '../components/ExerciseCard';
 import ExerciseDetailModal from '../components/ExerciseDetailModal';
+import AddExerciseModal from '../components/AddExerciseModal';
 import SkipModal from '../components/SkipModal';
 import SinRutina from '../components/SinRutina';
 
@@ -30,6 +31,7 @@ export default function TodayScreen() {
 
   const [detail, setDetail] = useState(null);
   const [skipOpen, setSkipOpen] = useState(false);
+  const [agregandoEjercicio, setAgregandoEjercicio] = useState(false);
 
   const day = getDay(key, today);
   const plan = day.plan;
@@ -142,6 +144,16 @@ export default function TodayScreen() {
           />
         ))}
 
+        <Pressable
+          onPress={() => setAgregandoEjercicio(true)}
+          style={({ pressed }) => [styles.agregarBtn, pressed && styles.pressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Agregar ejercicio a este día"
+        >
+          <Icon name="add-circle-outline" size={19} color={accent} />
+          <Text style={[styles.agregarBtnText, { color: accent }]}>Agregar ejercicio</Text>
+        </Pressable>
+
         {/* Acciones */}
         <View style={styles.actions}>
           {isSkipped ? (
@@ -167,6 +179,12 @@ export default function TodayScreen() {
       </ScrollView>
 
       <ExerciseDetailModal exercise={detail} day={day.planDay} visible={!!detail} onClose={() => setDetail(null)} />
+      <AddExerciseModal
+        visible={agregandoEjercicio}
+        day={day.planDay}
+        onClose={() => setAgregandoEjercicio(false)}
+        onAdded={() => setAgregandoEjercicio(false)}
+      />
       <SkipModal
         visible={skipOpen}
         dayTitle={plan.title}
@@ -238,6 +256,21 @@ const styles = StyleSheet.create({
   progressPct: { fontSize: font.h3, fontFamily: family.display },
   statusPill: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderRadius: radius.pill, paddingVertical: 9 },
   statusText: { fontFamily: family.bodyBold, fontSize: font.body },
+
+  agregarBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.border,
+    paddingVertical: spacing.md,
+    marginBottom: spacing.md,
+    minHeight: 52,
+  },
+  agregarBtnText: { fontSize: font.h3, fontFamily: family.bodyBold },
 
   actions: { marginTop: spacing.sm },
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radius.md, paddingVertical: spacing.md + 2, marginBottom: spacing.md, minHeight: 52 },

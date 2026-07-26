@@ -33,6 +33,10 @@ export const rutina = {
     api.get(`/api/routine/exercise/${encodeURIComponent(exerciseId)}/alternativas?day=${day}`),
   reemplazarEjercicio: (day, exerciseId, replacementId) =>
     api.patch('/api/routine/exercise', { day, exerciseId, replacementId }),
+  catalogoPara: (day) => api.get(`/api/routine/exercise/catalogo?day=${day}`),
+  agregarEjercicio: (day, exerciseId) => api.post('/api/routine/exercise', { day, exerciseId }),
+  quitarEjercicio: (day, exerciseId) =>
+    api.delete(`/api/routine/exercise?day=${day}&exerciseId=${encodeURIComponent(exerciseId)}`),
 };
 
 export const comidas = {

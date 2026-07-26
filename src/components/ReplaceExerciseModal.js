@@ -9,11 +9,10 @@
  * animación genérica.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Modal, View, Text, Image, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import { Modal, View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family } from '../theme';
 import Icon from './Icon';
-import LocalVideo from './LocalVideo';
-import ExerciseIllustration from '../illustrations/ExerciseIllustration';
+import ExercisePickerRow from './ExercisePickerRow';
 import { getLocalVideo } from '../data/localVideos';
 import { getLocalGif } from '../data/localGifs';
 import { usePlan } from '../store/PlanStore';
@@ -79,12 +78,13 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
           ) : (
             <ScrollView style={styles.lista} showsVerticalScrollIndicator={false}>
               {opciones.map((alt) => (
-                <AlternativaRow
+                <ExercisePickerRow
                   key={alt.id}
                   exercise={alt}
                   disabled={Boolean(cambiando)}
-                  cambiando={cambiando === alt.id}
+                  loading={cambiando === alt.id}
                   onPress={() => elegir(alt)}
+                  accessibilityLabel={`Cambiar por ${alt.name}`}
                 />
               ))}
             </ScrollView>
@@ -98,45 +98,6 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
         </View>
       </View>
     </Modal>
-  );
-}
-
-function AlternativaRow({ exercise, onPress, disabled, cambiando }) {
-  const accent = colors[exercise.group] || colors.primary;
-  const localVideo = getLocalVideo(exercise.localVideo);
-  const localGif = getLocalGif(exercise.id);
-
-  return (
-    <Pressable
-      onPress={disabled ? undefined : onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={`Cambiar por ${exercise.name}`}
-      style={({ pressed }) => [styles.fila, pressed && !disabled && styles.filaPressed, cambiando && styles.filaCambiando]}
-    >
-      <View style={[styles.miniatura, { backgroundColor: colors.bg }]}>
-        {localVideo ? (
-          <LocalVideo source={localVideo} controls={false} contentFit="cover" />
-        ) : localGif?.tipo === 'video' ? (
-          <LocalVideo source={localGif.fuente} controls={false} contentFit="cover" />
-        ) : localGif ? (
-          <Image source={localGif.fuente} style={styles.miniaturaImg} resizeMode="cover" />
-        ) : (
-          <ExerciseIllustration kind={exercise.illu} accent={accent} size={40} />
-        )}
-      </View>
-
-      <View style={styles.filaTextos}>
-        <Text style={styles.filaTitulo} numberOfLines={1}>{exercise.name}</Text>
-        <Text style={styles.filaDesc} numberOfLines={1}>{exercise.muscles}</Text>
-      </View>
-
-      {cambiando ? (
-        <ActivityIndicator size="small" color={accent} />
-      ) : (
-        <Icon name="chevron-forward" size={18} color={colors.textFaint} />
-      )}
-    </Pressable>
   );
 }
 
@@ -161,26 +122,6 @@ const styles = StyleSheet.create({
   vacioText: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, textAlign: 'center', paddingHorizontal: spacing.lg },
 
   lista: { marginBottom: spacing.sm },
-
-  fila: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm + 2,
-    marginBottom: spacing.sm,
-    minHeight: 68,
-  },
-  filaPressed: { opacity: 0.75 },
-  filaCambiando: { opacity: 0.6 },
-  miniatura: { width: 52, height: 52, borderRadius: radius.sm, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  miniaturaImg: { width: '100%', height: '100%' },
-  filaTextos: { flex: 1 },
-  filaTitulo: { color: colors.text, fontSize: font.body, fontFamily: family.bodySemi },
-  filaDesc: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body, marginTop: 2 },
 
   error: { color: colors.danger, fontSize: font.small, fontFamily: family.bodyMedium, textAlign: 'center', marginBottom: spacing.sm },
 

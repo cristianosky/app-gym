@@ -31,6 +31,8 @@ import { PIERNA } from './catalog/pierna.js';
 import { HOMBRO, BRAZO } from './catalog/hombro-brazo.js';
 import { CORE, CARDIO, BLOQUES } from './catalog/core-cardio.js';
 
+export { BLOQUES };
+
 /** Ejercicios que la IA puede escoger para el cuerpo de la sesión. */
 export const EXERCISES = Object.freeze([
   ...PECHO,

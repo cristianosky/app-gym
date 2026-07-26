@@ -81,6 +81,23 @@ export const replaceExerciseSchema = z.object({
   replacementId: z.string().min(1),
 });
 
+/** Qué día consultar para ver el catálogo disponible para agregar. */
+export const catalogQuerySchema = z.object({
+  day: z.coerce.number().int().min(1).max(7),
+});
+
+/** Agregar un ejercicio nuevo al día. */
+export const addExerciseSchema = z.object({
+  day: z.number().int().min(1).max(7),
+  exerciseId: z.string().min(1),
+});
+
+/** Quitar un ejercicio del día. */
+export const removeExerciseQuerySchema = z.object({
+  day: z.coerce.number().int().min(1).max(7),
+  exerciseId: z.string().min(1),
+});
+
 export const registerSchema = z.object({
   name: z
     .string()

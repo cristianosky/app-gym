@@ -11,6 +11,7 @@ import { weekdayIndex, currentWeekKeys } from '../utils/dates';
 import Icon from '../components/Icon';
 import SinRutina from '../components/SinRutina';
 import ExerciseDetailModal from '../components/ExerciseDetailModal';
+import AddExerciseModal from '../components/AddExerciseModal';
 
 const DAY_NAMES = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
 
@@ -20,6 +21,7 @@ export default function WeekScreen() {
   const weekKeys = currentWeekKeys(); // claves Lunes..Domingo de esta semana
   const [open, setOpen] = useState(todayIdx);
   const [detalle, setDetalle] = useState(null);
+  const [agregandoDia, setAgregandoDia] = useState(null);
 
   if (!rutina) return <SinRutina />;
 
@@ -99,6 +101,16 @@ export default function WeekScreen() {
                     </Pressable>
                   );
                 })}
+
+                <Pressable
+                  onPress={() => setAgregandoDia(idx)}
+                  style={({ pressed }) => [styles.agregarRow, pressed && styles.exRowPressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Agregar ejercicio a ${DAY_NAMES[idx]}`}
+                >
+                  <Icon name="add-circle-outline" size={17} color={accent} />
+                  <Text style={[styles.agregarText, { color: accent }]}>Agregar ejercicio</Text>
+                </Pressable>
               </View>
             )}
 
@@ -120,6 +132,12 @@ export default function WeekScreen() {
       day={detalle?.day}
       visible={!!detalle}
       onClose={() => setDetalle(null)}
+    />
+    <AddExerciseModal
+      visible={!!agregandoDia}
+      day={agregandoDia}
+      onClose={() => setAgregandoDia(null)}
+      onAdded={() => setAgregandoDia(null)}
     />
     </>
   );
@@ -170,4 +188,7 @@ const styles = StyleSheet.create({
   exMeta: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodySemi },
   restNoteRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
   restNote: { flex: 1, color: colors.textMuted, fontSize: font.body, fontFamily: family.body, lineHeight: 21 },
+
+  agregarRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm + 2, marginTop: 2 },
+  agregarText: { fontSize: font.small, fontFamily: family.bodyBold },
 });

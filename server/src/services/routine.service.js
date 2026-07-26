@@ -9,7 +9,7 @@
 import { genai, MODELS, extractText } from '../ai/client.js';
 import { routinePrompt } from '../ai/prompts.js';
 import { ROUTINE_SCHEMA } from '../ai/schemas.js';
-import { hydrate, getExercise, alternativesFor, warmupStretchForDay } from '../data/catalog.js';
+import { hydrate, getExercise, alternativesFor, exercisesForEnv, warmupStretchForDay } from '../data/catalog.js';
 import { aiRoutineSchema, ejerciciosValidos } from '../validation/ai-output.js';
 import { buildFallbackRoutine } from './fallback-routine.js';
 import * as planRepo from '../repositories/plan.repo.js';
@@ -238,6 +238,77 @@ export function replaceExercise(userId, day, exerciseId, replacementId) {
     return { ...d, ejercicios: d.ejercicios.map((ex) => (ex.id === exerciseId ? nuevo : ex)) };
   });
 
+  const plan = { ...actual.plan, dias };
+  return planRepo.save('rutina', userId, plan, actual.source);
+}
+
+/** Con qué series/reps/descanso arranca un ejercicio agregado a mano. */
+const PRESCRIPCION_POR_DEFECTO = { sets: 3, reps: '10-12', rest: 60 };
+
+/**
+ * Ejercicios que la persona puede agregar al día vigente: disponibles en su
+ * entorno y que todavía no estén ese día.
+ */
+export function getCatalogForDay(user, day) {
+  const actual = planRepo.findCurrent('rutina', user.id);
+  const dia = actual?.plan.dias.find((d) => d.dia === day);
+  const usados = new Set(dia?.ejercicios.map((ex) => ex.id) ?? []);
+
+  return exercisesForEnv(user.profile.environment).filter((ex) => !usados.has(ex.id));
+}
+
+/**
+ * Agrega un ejercicio al día, con una prescripción base (la persona puede
+ * ajustarla luego regenerando o cambiándolo). Se inserta antes del
+ * estiramiento final, no al final del arreglo.
+ */
+export function addExercise(userId, day, exerciseId) {
+  const actual = planRepo.findCurrent('rutina', userId);
+  if (!actual) throw notFound('Todavía no tiene una rutina guardada.');
+
+  const dia = actual.plan.dias.find((d) => d.dia === day);
+  if (!dia) throw badRequest('Ese día no existe en su rutina.');
+
+  const nuevoBase = getExercise(exerciseId);
+  if (!nuevoBase) throw badRequest('Ese ejercicio no existe.');
+  if (dia.ejercicios.some((ex) => ex.id === exerciseId)) {
+    throw badRequest('Ese ejercicio ya está en el día.');
+  }
+
+  const nuevo = hydrate({ exerciseId, ...PRESCRIPCION_POR_DEFECTO });
+  const indiceEstiramiento = dia.ejercicios.findIndex((ex) => ex.isStretch);
+  const ejercicios = [...dia.ejercicios];
+  ejercicios.splice(indiceEstiramiento === -1 ? ejercicios.length : indiceEstiramiento, 0, nuevo);
+
+  const dias = actual.plan.dias.map((d) => (d.dia === day ? { ...d, ejercicios } : d));
+  const plan = { ...actual.plan, dias };
+  return planRepo.save('rutina', userId, plan, actual.source);
+}
+
+/**
+ * Quita un ejercicio del día. No se puede dejar el día sin ningún
+ * ejercicio real (calentamiento y estiramiento no cuentan), para no dejar
+ * una sesión vacía por accidente.
+ */
+export function removeExercise(userId, day, exerciseId) {
+  const actual = planRepo.findCurrent('rutina', userId);
+  if (!actual) throw notFound('Todavía no tiene una rutina guardada.');
+
+  const dia = actual.plan.dias.find((d) => d.dia === day);
+  if (!dia) throw badRequest('Ese día no existe en su rutina.');
+
+  const objetivo = dia.ejercicios.find((ex) => ex.id === exerciseId);
+  if (!objetivo || objetivo.isWarmup || objetivo.isStretch) {
+    throw badRequest('Ese ejercicio no se puede quitar.');
+  }
+
+  const restantes = dia.ejercicios.filter((ex) => ex.isWarmup || ex.isStretch || ex.id !== exerciseId);
+  const quedanReales = restantes.some((ex) => !ex.isWarmup && !ex.isStretch);
+  if (!quedanReales) {
+    throw badRequest('No puede dejar el día sin ningún ejercicio. Agregue otro antes de quitar este.');
+  }
+
+  const dias = actual.plan.dias.map((d) => (d.dia === day ? { ...d, ejercicios: restantes } : d));
   const plan = { ...actual.plan, dias };
   return planRepo.save('rutina', userId, plan, actual.source);
 }

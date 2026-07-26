@@ -378,6 +378,32 @@ export function PlanProvider({ children }) {
     return respuesta;
   }, []);
 
+  /** Ejercicios del catálogo disponibles para agregar a un día. */
+  const catalogoPara = useCallback(async (day) => {
+    const respuesta = await endpoints.rutina.catalogoPara(day);
+    return respuesta.catalogo ?? [];
+  }, []);
+
+  /** Agrega un ejercicio nuevo al día, sin tocar la IA. */
+  const agregarEjercicio = useCallback(async (day, exerciseId) => {
+    const respuesta = await endpoints.rutina.agregarEjercicio(day, exerciseId);
+    if (respuesta.routine?.plan) {
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+    }
+    return respuesta;
+  }, []);
+
+  /** Quita un ejercicio del día, sin tocar la IA. */
+  const quitarEjercicio = useCallback(async (day, exerciseId) => {
+    const respuesta = await endpoints.rutina.quitarEjercicio(day, exerciseId);
+    if (respuesta.routine?.plan) {
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+    }
+    return respuesta;
+  }, []);
+
   /** Vuelve a pedirle la rutina a la IA con el perfil actual. */
   const regenerarRutina = useCallback(async () => {
     setCargando(true);
@@ -501,6 +527,9 @@ export function PlanProvider({ children }) {
       reordenarRutina,
       alternativasPara,
       reemplazarEjercicio,
+      catalogoPara,
+      agregarEjercicio,
+      quitarEjercicio,
       cargarComidas,
       descargar,
       weekStats,
@@ -510,6 +539,7 @@ export function PlanProvider({ children }) {
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
       regenerarRutina, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
+      catalogoPara, agregarEjercicio, quitarEjercicio,
       cargarComidas, descargar, weekStats, streak,
     ],
   );

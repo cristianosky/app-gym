@@ -14,6 +14,9 @@ import {
   routineOrderSchema,
   alternativesQuerySchema,
   replaceExerciseSchema,
+  catalogQuerySchema,
+  addExerciseSchema,
+  removeExerciseQuerySchema,
 } from '../validation/schemas.js';
 import {
   generateRoutine,
@@ -22,6 +25,9 @@ import {
   reorderRoutine,
   getAlternatives,
   replaceExercise,
+  getCatalogForDay,
+  addExercise,
+  removeExercise,
 } from '../services/routine.service.js';
 import { generateNutrition, getCurrentNutrition } from '../services/nutrition.service.js';
 
@@ -83,6 +89,39 @@ routineRouter.patch(
   asyncHandler(async (req, res) => {
     const { day, exerciseId, replacementId } = parseBody(replaceExerciseSchema, req.body);
     const guardado = replaceExercise(req.user.id, day, exerciseId, replacementId);
+    res.json({
+      ok: true,
+      routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
+    });
+  }),
+);
+
+routineRouter.get(
+  '/exercise/catalogo',
+  asyncHandler(async (req, res) => {
+    const { day } = parseBody(catalogQuerySchema, req.query);
+    const catalogo = getCatalogForDay(req.user, day);
+    res.json({ ok: true, catalogo });
+  }),
+);
+
+routineRouter.post(
+  '/exercise',
+  asyncHandler(async (req, res) => {
+    const { day, exerciseId } = parseBody(addExerciseSchema, req.body);
+    const guardado = addExercise(req.user.id, day, exerciseId);
+    res.json({
+      ok: true,
+      routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
+    });
+  }),
+);
+
+routineRouter.delete(
+  '/exercise',
+  asyncHandler(async (req, res) => {
+    const { day, exerciseId } = parseBody(removeExerciseQuerySchema, req.query);
+    const guardado = removeExercise(req.user.id, day, exerciseId);
     res.json({
       ok: true,
       routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },

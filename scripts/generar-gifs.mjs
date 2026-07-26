@@ -22,10 +22,10 @@ const SALIDA = path.join(RAIZ, 'src', 'data', 'localGifs.js');
 const EXTENSIONES_VIDEO = ['.mp4', '.mov', '.webm', '.m4v'];
 const EXTENSIONES_IMAGEN = ['.gif', '.jpg', '.jpeg', '.png', '.webp'];
 
-const { EXERCISES, WARMUP, STRETCH } = await import(
+const { EXERCISES, BLOQUES } = await import(
   pathToFileURL(path.join(RAIZ, 'server', 'src', 'data', 'catalog.js'))
 );
-const catalogo = [...EXERCISES, WARMUP, STRETCH];
+const catalogo = [...EXERCISES, ...BLOQUES];
 const idsCatalogo = new Set(catalogo.map((ex) => ex.id));
 
 mkdirSync(CARPETA_GIFS, { recursive: true });

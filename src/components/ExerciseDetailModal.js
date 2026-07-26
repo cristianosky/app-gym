@@ -19,8 +19,11 @@ import LocalVideo from './LocalVideo';
 import VideoPlayer from './VideoPlayer';
 import Icon from './Icon';
 import ReplaceExerciseModal from './ReplaceExerciseModal';
+import ConfirmModal from './ConfirmModal';
 import { getLocalVideo } from '../data/localVideos';
 import { getLocalGif } from '../data/localGifs';
+import { usePlan } from '../store/PlanStore';
+import { Alert } from '../utils/alert';
 
 const GROUP_LABEL = {
   pecho: 'Pecho', espalda: 'Espalda', pierna: 'Pierna', hombro: 'Hombro',
@@ -28,8 +31,10 @@ const GROUP_LABEL = {
 };
 
 export default function ExerciseDetailModal({ exercise, day, visible, onClose }) {
+  const { quitarEjercicio } = usePlan();
   const [mostrarVideo, setMostrarVideo] = useState(false);
   const [cambiando, setCambiando] = useState(false);
+  const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
 
   if (!exercise) return null;
 
@@ -42,6 +47,16 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
   const cerrar = () => {
     setMostrarVideo(false);
     onClose();
+  };
+
+  const confirmarQuitar = async () => {
+    setConfirmandoQuitar(false);
+    try {
+      await quitarEjercicio(day, exercise.id);
+      cerrar();
+    } catch (err) {
+      Alert.alert('No se pudo quitar', err.message);
+    }
   };
 
   return (
@@ -108,15 +123,27 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
             </View>
 
             {sePuedeCambiar && (
-              <Pressable
-                onPress={() => setCambiando(true)}
-                accessibilityRole="button"
-                accessibilityLabel="Cambiar este ejercicio por otro equivalente"
-                style={({ pressed }) => [styles.cambiarBtn, pressed && { opacity: 0.75 }]}
-              >
-                <Icon name="swap-horizontal" size={18} color={colors.textMuted} />
-                <Text style={styles.cambiarBtnText}>¿No puede hacer este? Cambiarlo por otro</Text>
-              </Pressable>
+              <View style={styles.accionesFila}>
+                <Pressable
+                  onPress={() => setCambiando(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Cambiar este ejercicio por otro equivalente"
+                  style={({ pressed }) => [styles.cambiarBtn, pressed && { opacity: 0.75 }]}
+                >
+                  <Icon name="swap-horizontal" size={17} color={colors.textMuted} />
+                  <Text style={styles.cambiarBtnText}>Cambiarlo por otro</Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setConfirmandoQuitar(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Quitar este ejercicio del día"
+                  style={({ pressed }) => [styles.cambiarBtn, pressed && { opacity: 0.75 }]}
+                >
+                  <Icon name="trash-outline" size={17} color={colors.danger} />
+                  <Text style={[styles.cambiarBtnText, { color: colors.danger }]}>Quitar del día</Text>
+                </Pressable>
+              </View>
             )}
 
             {/* Ajuste que el asistente escribió para esta persona en concreto. */}
@@ -185,6 +212,18 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
         setCambiando(false);
         cerrar();
       }}
+    />
+
+    <ConfirmModal
+      visible={confirmandoQuitar}
+      onClose={() => setConfirmandoQuitar(false)}
+      onConfirm={confirmarQuitar}
+      icon="trash-can-outline"
+      title="¿Quitar este ejercicio?"
+      message={`"${exercise.name}" se quita del día. Puede agregarlo de nuevo cuando quiera.`}
+      confirmText="Quitar"
+      cancelText="Cancelar"
+      destructive
     />
     </>
   );
@@ -268,13 +307,14 @@ const styles = StyleSheet.create({
   statValue: { color: colors.text, fontSize: font.h3, fontFamily: family.bodyBold },
   statLabel: { color: colors.textMuted, fontSize: font.tiny, fontFamily: family.bodyMedium, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
 
+  accionesFila: { flexDirection: 'row', marginBottom: spacing.md },
   cambiarBtn: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.sm,
+    gap: spacing.xs,
     paddingVertical: spacing.sm + 2,
-    marginBottom: spacing.lg,
     minHeight: 40,
   },
   cambiarBtnText: { color: colors.textMuted, fontSize: font.small, fontFamily: family.bodySemi, textDecorationLine: 'underline' },
