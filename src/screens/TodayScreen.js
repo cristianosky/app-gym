@@ -22,7 +22,10 @@ export default function TodayScreen() {
     rutina, origenRutina, nombre, descargar, cargando,
   } = usePlan();
 
-  const today = new Date();
+  // TEMPORAL — solo para probar: fuerza "hoy" a lunes 27/07/2026.
+  // Para volver a la fecha real, deje solo `const today = new Date();`.
+  const today = new Date(2026, 6, 27);
+  // const today = new Date();
   const key = dayKey(today);
 
   const [detail, setDetail] = useState(null);

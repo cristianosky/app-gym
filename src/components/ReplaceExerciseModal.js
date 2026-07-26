@@ -3,12 +3,19 @@
  * está, está ocupada, o simplemente no le gusta a la persona). Solo se
  * ofrecen ejercicios del mismo grupo muscular, así no se pierde el objetivo
  * de la sesión, y se conservan las series/repeticiones/descanso ya armados.
+ *
+ * Se priorizan los que ya tienen video o GIF local: así la persona ve de una
+ * cómo se hace el reemplazo, en vez de cambiarlo por uno que solo tiene la
+ * animación genérica.
  */
-import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Modal, View, Text, Image, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family } from '../theme';
 import Icon from './Icon';
-import SelectCard from './SelectCard';
+import LocalVideo from './LocalVideo';
+import ExerciseIllustration from '../illustrations/ExerciseIllustration';
+import { getLocalVideo } from '../data/localVideos';
+import { getLocalGif } from '../data/localGifs';
 import { usePlan } from '../store/PlanStore';
 
 export default function ReplaceExerciseModal({ visible, day, exercise, onClose, onReplaced }) {
@@ -27,6 +34,13 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
       .catch((err) => setError(err.message))
       .finally(() => setCargando(false));
   }, [visible, day, exercise, alternativasPara]);
+
+  // Con ejemplo visual primero; si ninguno tiene, mejor mostrarlos todos que
+  // dejar la lista vacía.
+  const opciones = useMemo(() => {
+    const conEjemplo = alternativas.filter((alt) => getLocalVideo(alt.localVideo) || getLocalGif(alt.id));
+    return conEjemplo.length > 0 ? conEjemplo : alternativas;
+  }, [alternativas]);
 
   if (!exercise) return null;
 
@@ -55,7 +69,7 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
 
           {cargando ? (
             <ActivityIndicator color={colors.primary} style={styles.spinner} />
-          ) : alternativas.length === 0 ? (
+          ) : opciones.length === 0 ? (
             <View style={styles.vacio}>
               <Icon set="mci" name="dumbbell" size={30} color={colors.textFaint} />
               <Text style={styles.vacioText}>
@@ -64,16 +78,13 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
             </View>
           ) : (
             <ScrollView style={styles.lista} showsVerticalScrollIndicator={false}>
-              {alternativas.map((alt) => (
-                <SelectCard
+              {opciones.map((alt) => (
+                <AlternativaRow
                   key={alt.id}
-                  title={alt.name}
-                  description={alt.muscles}
-                  icon="barbell-outline"
-                  accent={colors[alt.group] || colors.primary}
+                  exercise={alt}
+                  disabled={Boolean(cambiando)}
+                  cambiando={cambiando === alt.id}
                   onPress={() => elegir(alt)}
-                  compact
-                  style={cambiando === alt.id ? styles.cambiandoItem : null}
                 />
               ))}
             </ScrollView>
@@ -87,6 +98,45 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
         </View>
       </View>
     </Modal>
+  );
+}
+
+function AlternativaRow({ exercise, onPress, disabled, cambiando }) {
+  const accent = colors[exercise.group] || colors.primary;
+  const localVideo = getLocalVideo(exercise.localVideo);
+  const localGif = getLocalGif(exercise.id);
+
+  return (
+    <Pressable
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={`Cambiar por ${exercise.name}`}
+      style={({ pressed }) => [styles.fila, pressed && !disabled && styles.filaPressed, cambiando && styles.filaCambiando]}
+    >
+      <View style={[styles.miniatura, { backgroundColor: colors.bg }]}>
+        {localVideo ? (
+          <LocalVideo source={localVideo} controls={false} contentFit="cover" />
+        ) : localGif?.tipo === 'video' ? (
+          <LocalVideo source={localGif.fuente} controls={false} contentFit="cover" />
+        ) : localGif ? (
+          <Image source={localGif.fuente} style={styles.miniaturaImg} resizeMode="cover" />
+        ) : (
+          <ExerciseIllustration kind={exercise.illu} accent={accent} size={40} />
+        )}
+      </View>
+
+      <View style={styles.filaTextos}>
+        <Text style={styles.filaTitulo} numberOfLines={1}>{exercise.name}</Text>
+        <Text style={styles.filaDesc} numberOfLines={1}>{exercise.muscles}</Text>
+      </View>
+
+      {cambiando ? (
+        <ActivityIndicator size="small" color={accent} />
+      ) : (
+        <Icon name="chevron-forward" size={18} color={colors.textFaint} />
+      )}
+    </Pressable>
   );
 }
 
@@ -111,7 +161,26 @@ const styles = StyleSheet.create({
   vacioText: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, textAlign: 'center', paddingHorizontal: spacing.lg },
 
   lista: { marginBottom: spacing.sm },
-  cambiandoItem: { opacity: 0.5 },
+
+  fila: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.sm + 2,
+    marginBottom: spacing.sm,
+    minHeight: 68,
+  },
+  filaPressed: { opacity: 0.75 },
+  filaCambiando: { opacity: 0.6 },
+  miniatura: { width: 52, height: 52, borderRadius: radius.sm, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+  miniaturaImg: { width: '100%', height: '100%' },
+  filaTextos: { flex: 1 },
+  filaTitulo: { color: colors.text, fontSize: font.body, fontFamily: family.bodySemi },
+  filaDesc: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body, marginTop: 2 },
 
   error: { color: colors.danger, fontSize: font.small, fontFamily: family.bodyMedium, textAlign: 'center', marginBottom: spacing.sm },
 
