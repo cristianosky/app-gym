@@ -16,10 +16,11 @@ import ExerciseDetailModal from '../components/ExerciseDetailModal';
 import AddExerciseModal from '../components/AddExerciseModal';
 import SkipModal from '../components/SkipModal';
 import SinRutina from '../components/SinRutina';
+import WorkoutSessionModal from '../components/WorkoutSessionModal';
 
 export default function TodayScreen() {
   const {
-    getDay, toggleExercise, completeDay, skipDay, resetDay,
+    getDay, toggleExercise, marcarEjercicio, completeDay, skipDay, resetDay,
     rutina, origenRutina, nombre, descargar, cargando,
   } = usePlan();
 
@@ -29,6 +30,7 @@ export default function TodayScreen() {
   const [detail, setDetail] = useState(null);
   const [skipOpen, setSkipOpen] = useState(false);
   const [agregandoEjercicio, setAgregandoEjercicio] = useState(false);
+  const [entrenando, setEntrenando] = useState(false);
 
   const day = getDay(key, today);
   const plan = day.plan;
@@ -130,6 +132,21 @@ export default function TodayScreen() {
           )}
         </View>
 
+        {/* Modo entrenamiento: guía serie por serie con cronómetro */}
+        {!isSkipped && !isCompleted && total > 0 && (
+          <Pressable
+            onPress={() => setEntrenando(true)}
+            style={({ pressed }) => [styles.btn, styles.iniciarBtn, { backgroundColor: accent }, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel={doneCount > 0 ? 'Seguir el entrenamiento guiado' : 'Iniciar el entrenamiento guiado'}
+          >
+            <Icon name="play-circle" size={22} color={colors.onPrimary} />
+            <Text style={styles.btnText}>
+              {doneCount > 0 ? 'Seguir entrenando' : 'Iniciar ejercicio'}
+            </Text>
+          </Pressable>
+        )}
+
         {/* Lista de ejercicios */}
         {exercises.map((ex) => (
           <ExerciseCard
@@ -181,6 +198,16 @@ export default function TodayScreen() {
         day={day.planDay}
         onClose={() => setAgregandoEjercicio(false)}
         onAdded={() => setAgregandoEjercicio(false)}
+      />
+      <WorkoutSessionModal
+        visible={entrenando}
+        exercises={exercises}
+        completed={day.completed}
+        planTitle={plan.title}
+        accent={accent}
+        onExerciseDone={(id) => marcarEjercicio(key, id, true, today)}
+        onFinish={() => completeDay(key, today)}
+        onClose={() => setEntrenando(false)}
       />
       <SkipModal
         visible={skipOpen}
@@ -268,6 +295,8 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   agregarBtnText: { fontSize: font.h3, fontFamily: family.bodyBold },
+
+  iniciarBtn: { paddingVertical: spacing.lg, minHeight: 58, ...shadow.card },
 
   actions: { marginTop: spacing.sm },
   btn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, borderRadius: radius.md, paddingVertical: spacing.md + 2, marginBottom: spacing.md, minHeight: 52 },

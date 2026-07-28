@@ -265,8 +265,12 @@ export function PlanProvider({ children }) {
 
   // --- Acciones -----------------------------------------------------------
 
-  const toggleExercise = useCallback(
-    (key, exerciseId, fecha = new Date()) => {
+  /**
+   * Marca o desmarca un ejercicio.
+   * @param {(hecho: boolean) => boolean} decidir recibe cómo está y devuelve cómo debe quedar.
+   */
+  const cambiarEjercicio = useCallback(
+    (key, exerciseId, decidir, fecha) => {
       actualizarProgreso((previo) => {
         const dia = previo[key] ?? {
           planDay: overrides[key] ?? weekdayIndex(fecha),
@@ -275,8 +279,8 @@ export function PlanProvider({ children }) {
         };
 
         const completed = { ...dia.completed };
-        if (completed[exerciseId]) delete completed[exerciseId];
-        else completed[exerciseId] = true;
+        if (decidir(Boolean(completed[exerciseId]))) completed[exerciseId] = true;
+        else delete completed[exerciseId];
 
         const plan = getDayPlan(dia.planDay);
         const total = plan?.exercises?.length ?? 0;
@@ -287,6 +291,21 @@ export function PlanProvider({ children }) {
       });
     },
     [actualizarProgreso, overrides, getDayPlan],
+  );
+
+  const toggleExercise = useCallback(
+    (key, exerciseId, fecha = new Date()) => cambiarEjercicio(key, exerciseId, (hecho) => !hecho, fecha),
+    [cambiarEjercicio],
+  );
+
+  /**
+   * Deja un ejercicio en un estado concreto (no alterna).
+   * Lo usa el modo entrenamiento, donde marcar dos veces no debe desmarcar.
+   */
+  const marcarEjercicio = useCallback(
+    (key, exerciseId, hecho = true, fecha = new Date()) =>
+      cambiarEjercicio(key, exerciseId, () => hecho, fecha),
+    [cambiarEjercicio],
   );
 
   const completeDay = useCallback(
@@ -521,6 +540,7 @@ export function PlanProvider({ children }) {
       getDay,
       getDayPlan,
       toggleExercise,
+      marcarEjercicio,
       completeDay,
       skipDay,
       resetDay,
@@ -539,7 +559,7 @@ export function PlanProvider({ children }) {
     }),
     [
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
-      getDay, getDayPlan, toggleExercise, completeDay, skipDay, resetDay,
+      getDay, getDayPlan, toggleExercise, marcarEjercicio, completeDay, skipDay, resetDay,
       regenerarRutina, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
       catalogoPara, agregarEjercicio, quitarEjercicio,
       cargarComidas, descargar, weekStats, streak,
