@@ -6,15 +6,17 @@
  *   1. muestra el ejercicio actual con su demostración y la serie que va,
  *   2. al marcar "Terminé la serie" arranca el descanso con cuenta regresiva,
  *   3. cuando el descanso llega a cero pasa solo a la siguiente serie,
- *   4. al acabar la última serie marca el ejercicio como hecho y sigue con el
- *      siguiente, sin que la persona tenga que buscar nada en la lista.
+ *   4. al acabar la última serie avisa "ejercicio terminado" y espera a que la
+ *      persona toque "Siguiente" para continuar con el que sigue.
  *
  * Arriba siempre se ve el tiempo que lleva y cuánto falta para terminar el día.
+ * El estado vive en `store/SessionStore`: esta pantalla solo lo muestra, así se
+ * puede minimizar y volver sin perder nada.
  */
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 import {
   Modal, View, Text, Image, Pressable, StyleSheet, ScrollView,
-  SafeAreaView, StatusBar, Platform, Vibration,
+  SafeAreaView, StatusBar, Platform,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors, radius, spacing, font, family, alpha, shadow } from '../theme';
@@ -23,182 +25,57 @@ import LocalVideo from './LocalVideo';
 import Icon from './Icon';
 import { getLocalVideo } from '../data/localVideos';
 import { getLocalGif } from '../data/localGifs';
-import {
-  duracionDeReps, segundosDeDescanso, segundosRestantes, reloj, tiempoAproximado,
-} from '../utils/entrenamiento';
+import { usePlan } from '../store/PlanStore';
+import { useSesion, DESCANSO_EXTRA } from '../store/SessionStore';
+import { segundosRestantes, reloj, tiempoAproximado } from '../utils/entrenamiento';
+import useTick from '../utils/useTick';
 
-/** Cada cuánto se refresca la pantalla mientras corre el cronómetro. */
-const TICK_MS = 500;
+export default function WorkoutSessionModal() {
+  const { getDay } = usePlan();
+  const {
+    sesion, abierta, ejercicios, actual, proximo,
+    terminarSerie, siguienteEjercicio, sumarDescanso, saltarDescanso,
+    minimizar, terminar, salir,
+  } = useSesion();
 
-/** Lo que suma el botón "+15 s" del descanso. */
-const DESCANSO_EXTRA = 15;
+  const ahora = useTick(Boolean(sesion) && abierta);
 
-const vibrar = (patron) => {
-  if (Platform.OS !== 'web') Vibration.vibrate(patron);
-};
+  if (!sesion) return null;
 
-export default function WorkoutSessionModal({
-  visible,
-  exercises = [],
-  completed = {},
-  planTitle,
-  accent = colors.primary,
-  onExerciseDone,
-  onFinish,
-  onClose,
-}) {
-  // La sesión se arma al abrir y no se recalcula después: si al terminar una
-  // serie la lista se reordenara sola, la persona perdería el hilo.
-  const [lista, setLista] = useState([]);
-  const [indice, setIndice] = useState(0);
-  const [serie, setSerie] = useState(1);
-  const [fase, setFase] = useState('trabajo'); // 'trabajo' | 'descanso' | 'fin'
-  const [finFase, setFinFase] = useState(null); // instante en que termina la fase cronometrada
-  const [inicioFase, setInicioFase] = useState(0);
-  const [cambioDeEjercicio, setCambioDeEjercicio] = useState(false);
-  const [ahora, setAhora] = useState(Date.now());
+  const plan = getDay(sesion.key).plan;
+  const accent = colors[plan?.accent] || colors.primary;
 
-  const inicioSesion = useRef(Date.now());
-
-  const actual = lista[indice] ?? null;
+  const { fase, indice, serie, finFase, inicioFase, inicio } = sesion;
   const seriesTotales = Math.max(1, actual?.sets ?? 1);
 
-  // --- Arranque y cronómetro ---------------------------------------------
-
-  useEffect(() => {
-    if (!visible) return;
-    const pendientes = exercises.filter((ex) => !completed[ex.id]);
-    const cola = pendientes.length > 0 ? pendientes : [];
-
-    inicioSesion.current = Date.now();
-    setLista(cola);
-    setIndice(0);
-    setSerie(1);
-    setCambioDeEjercicio(false);
-    setAhora(Date.now());
-
-    if (cola.length === 0) {
-      setFase('fin');
-      setFinFase(null);
-      return;
-    }
-    setFase('trabajo');
-    setInicioFase(Date.now());
-    const porTiempo = duracionDeReps(cola[0].reps);
-    setFinFase(porTiempo ? Date.now() + porTiempo * 1000 : null);
-    // `exercises`/`completed` se leen solo al abrir, a propósito.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible]);
-
-  useEffect(() => {
-    if (!visible || fase === 'fin') return;
-    const id = setInterval(() => setAhora(Date.now()), TICK_MS);
-    return () => clearInterval(id);
-  }, [visible, fase]);
-
-  // --- Transiciones -------------------------------------------------------
-
-  const empezarTrabajo = useCallback((i) => {
-    const siguiente = lista[i];
-    const porTiempo = duracionDeReps(siguiente?.reps);
-    setFase('trabajo');
-    setInicioFase(Date.now());
-    setFinFase(porTiempo ? Date.now() + porTiempo * 1000 : null);
-  }, [lista]);
-
-  const empezarDescanso = useCallback((segundos, iSiguiente) => {
-    if (segundos <= 0) {
-      empezarTrabajo(iSiguiente);
-      return;
-    }
-    setFase('descanso');
-    setInicioFase(Date.now());
-    setFinFase(Date.now() + segundos * 1000);
-  }, [empezarTrabajo]);
-
-  /** Cierra la serie que se acaba de hacer y decide qué sigue. */
-  const terminarSerie = useCallback(() => {
-    if (!actual) return;
-    vibrar(40);
-    const descanso = segundosDeDescanso(actual);
-
-    if (serie < seriesTotales) {
-      setSerie(serie + 1);
-      setCambioDeEjercicio(false);
-      empezarDescanso(descanso, indice);
-      return;
-    }
-
-    // Última serie: el ejercicio queda hecho.
-    onExerciseDone?.(actual.id);
-    const siguiente = indice + 1;
-    if (siguiente >= lista.length) {
-      setFase('fin');
-      setFinFase(null);
-      vibrar([0, 120, 90, 220]);
-      return;
-    }
-    setIndice(siguiente);
-    setSerie(1);
-    setCambioDeEjercicio(true);
-    empezarDescanso(descanso, siguiente);
-  }, [actual, serie, seriesTotales, indice, lista.length, onExerciseDone, empezarDescanso]);
-
-  // Fin del descanso → arranca sola la siguiente serie.
-  useEffect(() => {
-    if (fase !== 'descanso' || !finFase || ahora < finFase) return;
-    vibrar([0, 90, 70, 90]);
-    empezarTrabajo(indice);
-  }, [fase, finFase, ahora, indice, empezarTrabajo]);
-
-  // Series por tiempo (planchas, cardio): se cierran solas al llegar a cero.
-  useEffect(() => {
-    if (fase !== 'trabajo' || !finFase || ahora < finFase) return;
-    terminarSerie();
-  }, [fase, finFase, ahora, terminarSerie]);
-
-  const sumarDescanso = () => setFinFase((fin) => (fin ?? Date.now()) + DESCANSO_EXTRA * 1000);
-  const saltarDescanso = () => empezarTrabajo(indice);
-
-  // --- Números que se muestran -------------------------------------------
-
-  const transcurrido = Math.floor((ahora - inicioSesion.current) / 1000);
+  const transcurrido = Math.floor((ahora - inicio) / 1000);
   const restanteFase = finFase ? Math.max(0, (finFase - ahora) / 1000) : 0;
   const totalFase = finFase ? Math.max(1, (finFase - inicioFase) / 1000) : 1;
+  const progresoFase = finFase ? 1 - restanteFase / totalFase : 0;
   const enFase = Math.floor((ahora - inicioFase) / 1000);
 
-  const faltante = useMemo(() => {
-    if (fase === 'fin') return 0;
-    // `serie` ya apunta a la que falta hacer, así que las hechas son una menos.
-    return segundosRestantes(lista.slice(indice), serie - 1) + Math.round(restanteFase);
-  }, [fase, lista, indice, serie, restanteFase]);
-
-  const hechosEnSesion = fase === 'fin' ? lista.length : indice;
-  const avance = lista.length > 0 ? hechosEnSesion / lista.length : 1;
-  const siguienteEjercicio = lista[indice + 1] ?? null;
-
-  const terminar = () => {
-    onFinish?.();
-    onClose?.();
-  };
+  // `serie` ya apunta a la que falta hacer, así que las hechas son una menos.
+  const faltante = segundosRestantes(ejercicios.slice(indice), serie - 1) + Math.round(restanteFase);
+  const hechos = fase === 'fin' ? ejercicios.length : indice;
+  const avance = ejercicios.length > 0 ? hechos / ejercicios.length : 1;
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={abierta} animationType="slide" onRequestClose={minimizar} statusBarTranslucent>
       <SafeAreaView style={styles.screen}>
         <View style={styles.header}>
           <Pressable
-            onPress={onClose}
+            onPress={minimizar}
             hitSlop={12}
             accessibilityRole="button"
-            accessibilityLabel="Salir del modo entrenamiento"
-            style={({ pressed }) => [styles.salir, pressed && { opacity: 0.7 }]}
+            accessibilityLabel="Minimizar el entrenamiento y seguir viéndolo abajo"
+            style={({ pressed }) => [styles.iconoHeader, pressed && { opacity: 0.7 }]}
           >
-            <Icon name="chevron-down" size={24} color={colors.textMuted} />
+            <Icon name="chevron-down" size={26} color={colors.textMuted} />
           </Pressable>
 
           <View style={styles.headerCentro}>
             <Text style={styles.headerLabel}>EN ENTRENAMIENTO</Text>
-            <Text style={styles.headerTitulo} numberOfLines={1}>{planTitle}</Text>
+            <Text style={styles.headerTitulo} numberOfLines={1}>{plan?.title}</Text>
           </View>
 
           <View style={styles.tiempoTotal}>
@@ -208,13 +85,12 @@ export default function WorkoutSessionModal({
         </View>
 
         {fase === 'fin' ? (
-          <Final transcurrido={transcurrido} hechos={lista.length} accent={accent} onTerminar={terminar} />
+          <Final transcurrido={transcurrido} hechos={ejercicios.length} accent={accent} onTerminar={terminar} />
         ) : (
           <ScrollView contentContainerStyle={styles.contenido} showsVerticalScrollIndicator={false}>
-            {/* Avance del día */}
             <View style={styles.avanceFila}>
               <Text style={styles.avanceText}>
-                Ejercicio {Math.min(indice + 1, lista.length)} de {lista.length}
+                Ejercicio {Math.min(indice + 1, ejercicios.length)} de {ejercicios.length}
               </Text>
               <Text style={[styles.avanceFalta, { color: accent }]}>
                 Falta {tiempoAproximado(faltante)}
@@ -224,11 +100,18 @@ export default function WorkoutSessionModal({
               <View style={[styles.avanceRelleno, { width: `${Math.round(avance * 100)}%`, backgroundColor: accent }]} />
             </View>
 
-            {fase === 'descanso' ? (
+            {fase === 'ejercicio-terminado' ? (
+              <EjercicioTerminado
+                ejercicio={actual}
+                proximo={proximo}
+                accent={accent}
+                onSiguiente={siguienteEjercicio}
+              />
+            ) : fase === 'descanso' ? (
               <Descanso
                 restante={restanteFase}
-                progreso={1 - restanteFase / totalFase}
-                cambioDeEjercicio={cambioDeEjercicio}
+                progreso={progresoFase}
+                cambioDeEjercicio={sesion.cambio}
                 proximo={actual}
                 serie={serie}
                 seriesTotales={seriesTotales}
@@ -242,12 +125,21 @@ export default function WorkoutSessionModal({
                 seriesTotales={seriesTotales}
                 enFase={enFase}
                 restante={finFase ? restanteFase : null}
-                progreso={finFase ? 1 - restanteFase / totalFase : 0}
+                progreso={progresoFase}
                 accent={accent}
+                siguiente={proximo}
                 onTerminarSerie={terminarSerie}
-                siguiente={siguienteEjercicio}
               />
             )}
+
+            <Pressable
+              onPress={salir}
+              accessibilityRole="button"
+              accessibilityLabel="Salir del modo entrenamiento"
+              style={({ pressed }) => [styles.salirBtn, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={styles.salirBtnText}>Salir del entrenamiento</Text>
+            </Pressable>
           </ScrollView>
         )}
       </SafeAreaView>
@@ -257,7 +149,7 @@ export default function WorkoutSessionModal({
 
 /** Fase de trabajo: el ejercicio que toca hacer ahora mismo. */
 function Trabajo({
-  ejercicio, serie, seriesTotales, enFase, restante, progreso, accent, onTerminarSerie, siguiente,
+  ejercicio, serie, seriesTotales, enFase, restante, progreso, accent, siguiente, onTerminarSerie,
 }) {
   if (!ejercicio) return null;
   const color = colors[ejercicio.group] || accent;
@@ -315,6 +207,55 @@ function Trabajo({
   );
 }
 
+/** Aviso entre ejercicios: se hizo la última serie y hay que confirmar el paso. */
+function EjercicioTerminado({ ejercicio, proximo, accent, onSiguiente }) {
+  return (
+    <>
+      <View style={[styles.hechoIcono, { backgroundColor: alpha(colors.success, 0.16) }]}>
+        <Icon name="checkmark-circle" size={64} color={colors.success} />
+      </View>
+
+      <Text style={styles.hechoTitulo}>¡Ejercicio terminado!</Text>
+      <Text style={styles.hechoNombre} numberOfLines={2}>{ejercicio?.name}</Text>
+
+      {proximo ? (
+        <>
+          <View style={[styles.proximoCard, { borderColor: alpha(accent, 0.35) }]}>
+            <Text style={styles.proximoLabel}>VAMOS AL SIGUIENTE</Text>
+            <Text style={styles.proximoNombre} numberOfLines={2}>{proximo.name}</Text>
+            <Text style={styles.proximoMeta}>
+              {proximo.sets} {proximo.sets > 1 ? 'series' : 'serie'} · {proximo.reps}
+            </Text>
+          </View>
+
+          <Pressable
+            onPress={onSiguiente}
+            accessibilityRole="button"
+            accessibilityLabel={`Siguiente ejercicio: ${proximo.name}`}
+            style={({ pressed }) => [styles.botonGrande, { backgroundColor: accent }, pressed && styles.presionado]}
+          >
+            <Text style={styles.botonGrandeText}>Siguiente</Text>
+            <Icon name="arrow-forward" size={24} color={colors.onPrimary} />
+          </Pressable>
+        </>
+      ) : (
+        <>
+          <Text style={styles.hechoUltimo}>Era el último ejercicio del día.</Text>
+          <Pressable
+            onPress={onSiguiente}
+            accessibilityRole="button"
+            accessibilityLabel="Terminar el entrenamiento"
+            style={({ pressed }) => [styles.botonGrande, { backgroundColor: colors.success }, pressed && styles.presionado]}
+          >
+            <Text style={styles.botonGrandeText}>Terminar entrenamiento</Text>
+            <Icon name="arrow-forward" size={24} color={colors.onPrimary} />
+          </Pressable>
+        </>
+      )}
+    </>
+  );
+}
+
 /** Fase de descanso: cuenta regresiva hasta la siguiente serie o ejercicio. */
 function Descanso({
   restante, progreso, cambioDeEjercicio, proximo, serie, seriesTotales, onSumar, onSaltar,
@@ -346,11 +287,11 @@ function Descanso({
         <Pressable
           onPress={onSumar}
           accessibilityRole="button"
-          accessibilityLabel="Sumar 15 segundos de descanso"
+          accessibilityLabel={`Sumar ${DESCANSO_EXTRA} segundos de descanso`}
           style={({ pressed }) => [styles.botonSecundario, pressed && styles.presionado]}
         >
           <Icon name="add" size={18} color={colors.text} />
-          <Text style={styles.botonSecundarioText}>15 s más</Text>
+          <Text style={styles.botonSecundarioText}>{DESCANSO_EXTRA} s más</Text>
         </Pressable>
 
         <Pressable
@@ -455,7 +396,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  salir: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
+  iconoHeader: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', marginLeft: -spacing.sm },
   headerCentro: { flex: 1, alignItems: 'center', paddingHorizontal: spacing.sm },
   headerLabel: { color: colors.textFaint, fontSize: font.tiny, fontFamily: family.bodyBold, letterSpacing: 1 },
   headerTitulo: { color: colors.text, fontSize: font.h3, fontFamily: family.display },
@@ -498,6 +439,20 @@ const styles = StyleSheet.create({
   anilloValor: { fontSize: font.display, fontFamily: family.displayBlack, marginVertical: 2, textAlign: 'center' },
   anilloPie: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body, textAlign: 'center' },
 
+  hechoIcono: {
+    width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center',
+    marginTop: spacing.lg, marginBottom: spacing.lg,
+  },
+  hechoTitulo: { color: colors.success, fontSize: font.h1, fontFamily: family.display, textAlign: 'center' },
+  hechoNombre: {
+    color: colors.textMuted, fontSize: font.body, fontFamily: family.body,
+    textAlign: 'center', marginBottom: spacing.xl,
+  },
+  hechoUltimo: {
+    color: colors.textMuted, fontSize: font.body, fontFamily: family.body,
+    textAlign: 'center', marginBottom: spacing.xl,
+  },
+
   botonGrande: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm,
     alignSelf: 'stretch', borderRadius: radius.md, paddingVertical: spacing.lg, minHeight: 62,
@@ -527,6 +482,12 @@ const styles = StyleSheet.create({
   },
   botonSaltar: { backgroundColor: alpha(colors.rest, 0.14), borderWidth: 1, borderColor: alpha(colors.rest, 0.4) },
   botonSecundarioText: { color: colors.text, fontSize: font.h3, fontFamily: family.bodySemi },
+
+  salirBtn: { paddingVertical: spacing.md, marginTop: spacing.lg, minHeight: 44, justifyContent: 'center' },
+  salirBtnText: {
+    color: colors.textFaint, fontSize: font.small, fontFamily: family.bodySemi,
+    textDecorationLine: 'underline', textAlign: 'center',
+  },
 
   final: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
   finalIcono: { width: 96, height: 96, borderRadius: 48, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg },

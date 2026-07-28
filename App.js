@@ -30,7 +30,10 @@ import {
 import { colors, family, font, spacing, radius } from './src/theme';
 import { AuthProvider, useAuth } from './src/store/AuthStore';
 import { PlanProvider, usePlan } from './src/store/PlanStore';
+import { SesionProvider } from './src/store/SessionStore';
 import Icon from './src/components/Icon';
+import SessionMiniBar from './src/components/SessionMiniBar';
+import WorkoutSessionModal from './src/components/WorkoutSessionModal';
 import AuthFlow from './src/screens/auth/AuthFlow';
 import TodayScreen from './src/screens/TodayScreen';
 import WeekScreen from './src/screens/WeekScreen';
@@ -73,6 +76,11 @@ function MainTabs() {
       <View style={{ flex: 1 }}>
         <Activa />
       </View>
+
+      {/* El entrenamiento vive por encima de las pestañas: se puede minimizar
+          y seguir viéndolo desde cualquier pantalla. */}
+      <SessionMiniBar />
+      <WorkoutSessionModal />
 
       <View style={styles.tabBar}>
         {TABS.map((t) => {
@@ -144,7 +152,9 @@ export default function App() {
       {Platform.OS === 'android' && <StatusBar backgroundColor={colors.bg} barStyle="light-content" />}
       <AuthProvider>
         <PlanProvider>
-          <Shell />
+          <SesionProvider>
+            <Shell />
+          </SesionProvider>
         </PlanProvider>
       </AuthProvider>
     </SafeAreaView>

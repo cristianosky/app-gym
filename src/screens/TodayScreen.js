@@ -7,6 +7,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, RefreshControl } from 'react-native';
 import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
 import { usePlan } from '../store/PlanStore';
+import { useSesion } from '../store/SessionStore';
 import { dayKey, longDate } from '../utils/dates';
 import { MENSAJES_DESCANSO, mensajeDelDia } from '../data/messages';
 import Icon from '../components/Icon';
@@ -16,13 +17,13 @@ import ExerciseDetailModal from '../components/ExerciseDetailModal';
 import AddExerciseModal from '../components/AddExerciseModal';
 import SkipModal from '../components/SkipModal';
 import SinRutina from '../components/SinRutina';
-import WorkoutSessionModal from '../components/WorkoutSessionModal';
 
 export default function TodayScreen() {
   const {
-    getDay, toggleExercise, marcarEjercicio, completeDay, skipDay, resetDay,
+    getDay, toggleExercise, completeDay, skipDay, resetDay,
     rutina, origenRutina, nombre, descargar, cargando,
   } = usePlan();
+  const { sesion, iniciar: iniciarSesion, abrir: abrirSesion, salir: salirSesion } = useSesion();
 
   const today = new Date();
   const key = dayKey(today);
@@ -30,7 +31,6 @@ export default function TodayScreen() {
   const [detail, setDetail] = useState(null);
   const [skipOpen, setSkipOpen] = useState(false);
   const [agregandoEjercicio, setAgregandoEjercicio] = useState(false);
-  const [entrenando, setEntrenando] = useState(false);
 
   const day = getDay(key, today);
   const plan = day.plan;
@@ -75,6 +75,7 @@ export default function TodayScreen() {
 
   const isCompleted = day.status === 'completed';
   const isSkipped = day.status === 'skipped';
+  const enCurso = sesion?.key === key;
 
   return (
     <View style={styles.screen}>
@@ -135,14 +136,14 @@ export default function TodayScreen() {
         {/* Modo entrenamiento: guía serie por serie con cronómetro */}
         {!isSkipped && !isCompleted && total > 0 && (
           <Pressable
-            onPress={() => setEntrenando(true)}
+            onPress={() => (enCurso ? abrirSesion() : iniciarSesion(key, exercises, day.completed))}
             style={({ pressed }) => [styles.btn, styles.iniciarBtn, { backgroundColor: accent }, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel={doneCount > 0 ? 'Seguir el entrenamiento guiado' : 'Iniciar el entrenamiento guiado'}
+            accessibilityLabel={enCurso ? 'Volver al entrenamiento en curso' : 'Iniciar el entrenamiento guiado'}
           >
-            <Icon name="play-circle" size={22} color={colors.onPrimary} />
+            <Icon name={enCurso ? 'play-back-circle' : 'play-circle'} size={22} color={colors.onPrimary} />
             <Text style={styles.btnText}>
-              {doneCount > 0 ? 'Seguir entrenando' : 'Iniciar ejercicio'}
+              {enCurso ? 'Volver al entrenamiento' : doneCount > 0 ? 'Seguir entrenando' : 'Iniciar ejercicio'}
             </Text>
           </Pressable>
         )}
@@ -178,7 +179,7 @@ export default function TodayScreen() {
           ) : (
             <>
               {!isCompleted && (
-                <Pressable onPress={() => completeDay(key, today)} style={({ pressed }) => [styles.btn, { backgroundColor: accent }, pressed && styles.pressed]}>
+                <Pressable onPress={() => { completeDay(key, today); salirSesion(); }} style={({ pressed }) => [styles.btn, { backgroundColor: accent }, pressed && styles.pressed]}>
                   <Icon name="checkmark-circle" size={20} color={colors.onPrimary} />
                   <Text style={styles.btnText}>Terminar el entrenamiento</Text>
                 </Pressable>
@@ -199,22 +200,12 @@ export default function TodayScreen() {
         onClose={() => setAgregandoEjercicio(false)}
         onAdded={() => setAgregandoEjercicio(false)}
       />
-      <WorkoutSessionModal
-        visible={entrenando}
-        exercises={exercises}
-        completed={day.completed}
-        planTitle={plan.title}
-        accent={accent}
-        onExerciseDone={(id) => marcarEjercicio(key, id, true, today)}
-        onFinish={() => completeDay(key, today)}
-        onClose={() => setEntrenando(false)}
-      />
       <SkipModal
         visible={skipOpen}
         dayTitle={plan.title}
         onClose={() => setSkipOpen(false)}
-        onSkip={() => { skipDay(key, 'skip', today); setSkipOpen(false); }}
-        onMove={() => { skipDay(key, 'move', today); setSkipOpen(false); }}
+        onSkip={() => { skipDay(key, 'skip', today); salirSesion(); setSkipOpen(false); }}
+        onMove={() => { skipDay(key, 'move', today); salirSesion(); setSkipOpen(false); }}
       />
     </View>
   );
