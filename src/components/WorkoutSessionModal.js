@@ -222,6 +222,13 @@ function EjercicioTerminado({ ejercicio, proximo, accent, onSiguiente }) {
         <>
           <View style={[styles.proximoCard, { borderColor: alpha(accent, 0.35) }]}>
             <Text style={styles.proximoLabel}>VAMOS AL SIGUIENTE</Text>
+            <Demostracion
+              ejercicio={proximo}
+              accent={colors[proximo.group] || accent}
+              alto={140}
+              dibujo={104}
+              style={styles.proximoDemo}
+            />
             <Text style={styles.proximoNombre} numberOfLines={2}>{proximo.name}</Text>
             <Text style={styles.proximoMeta}>
               {proximo.sets} {proximo.sets > 1 ? 'series' : 'serie'} · {proximo.reps}
@@ -277,10 +284,23 @@ function Descanso({
         <Text style={styles.proximoLabel}>
           {cambioDeEjercicio ? 'SIGUIENTE EJERCICIO' : 'SIGUIENTE SERIE'}
         </Text>
-        <Text style={styles.proximoNombre} numberOfLines={2}>{proximo?.name}</Text>
-        <Text style={styles.proximoMeta}>
-          Serie {serie} de {seriesTotales} · {proximo?.reps}
-        </Text>
+        <View style={styles.proximoFila}>
+          {proximo && (
+            <Demostracion
+              ejercicio={proximo}
+              accent={colors[proximo.group] || colors.rest}
+              alto={76}
+              dibujo={58}
+              style={styles.proximoMini}
+            />
+          )}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.proximoNombre} numberOfLines={2}>{proximo?.name}</Text>
+            <Text style={styles.proximoMeta}>
+              Serie {serie} de {seriesTotales} · {proximo?.reps}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.descansoBotones}>
@@ -333,13 +353,17 @@ function Final({ transcurrido, hechos, accent, onTerminar }) {
   );
 }
 
-/** Demostración del movimiento: video local, GIF o animación. */
-function Demostracion({ ejercicio, accent }) {
+/**
+ * Demostración del movimiento: video local, GIF o animación.
+ * `alto` y `dibujo` permiten usarla grande para el ejercicio en curso y
+ * pequeña para adelantar cuál es el que sigue.
+ */
+function Demostracion({ ejercicio, accent, alto = 150, dibujo = 120, style }) {
   const video = getLocalVideo(ejercicio.localVideo);
   const gif = getLocalGif(ejercicio.id);
 
   return (
-    <View style={styles.demo}>
+    <View style={[styles.demo, { height: alto }, style]}>
       {video ? (
         <LocalVideo source={video} controls={false} contentFit="cover" />
       ) : gif?.tipo === 'video' ? (
@@ -347,7 +371,7 @@ function Demostracion({ ejercicio, accent }) {
       ) : gif ? (
         <Image source={gif.fuente} style={styles.demoGif} resizeMode="cover" />
       ) : (
-        <ExerciseIllustration kind={ejercicio.illu} accent={accent} size={120} />
+        <ExerciseIllustration kind={ejercicio.illu} accent={accent} size={dibujo} />
       )}
     </View>
   );
@@ -415,7 +439,7 @@ const styles = StyleSheet.create({
   avanceRelleno: { height: '100%', borderRadius: 3 },
 
   demo: {
-    width: '100%', height: 150, borderRadius: radius.md, overflow: 'hidden',
+    width: '100%', borderRadius: radius.md, overflow: 'hidden',
     backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.md,
   },
@@ -471,7 +495,10 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch', backgroundColor: colors.surface, borderRadius: radius.md,
     borderWidth: 1, padding: spacing.lg, marginBottom: spacing.lg,
   },
-  proximoLabel: { color: colors.textFaint, fontSize: font.tiny, fontFamily: family.bodyBold, letterSpacing: 1, marginBottom: 4 },
+  proximoLabel: { color: colors.textFaint, fontSize: font.tiny, fontFamily: family.bodyBold, letterSpacing: 1, marginBottom: 6 },
+  proximoDemo: { backgroundColor: colors.bg, marginBottom: spacing.md },
+  proximoFila: { flexDirection: 'row', alignItems: 'center' },
+  proximoMini: { width: 76, backgroundColor: colors.bg, marginBottom: 0, marginRight: spacing.md },
   proximoNombre: { color: colors.text, fontSize: font.h3, fontFamily: family.bodySemi },
   proximoMeta: { color: colors.textMuted, fontSize: font.small, fontFamily: family.body, marginTop: 3 },
 
