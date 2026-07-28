@@ -21,7 +21,9 @@ import { useAuth } from './AuthStore';
 import { dayKey } from '../utils/dates';
 import { duracionDeReps, segundosDeDescanso } from '../utils/entrenamiento';
 
-const CLAVE_CACHE = 'mi-entrenamiento:sesion:v1';
+// Ojo: no reutilizar 'mi-entrenamiento:sesion:v1', que es la sesión del
+// usuario en AuthStore. Esta clave guarda el entrenamiento en curso.
+const CLAVE_CACHE = 'mi-entrenamiento:entrenamiento:v1';
 
 /** Lo que suma el botón "+15 s" del descanso. */
 export const DESCANSO_EXTRA = 15;
