@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "PowerShell(Invoke-WebRequest -Uri https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1 -OutFile \"$env:TEMP\\\\cbm_install.ps1\"; \\(Get-Item \"$env:TEMP\\\\cbm_install.ps1\"\\).Length)",
+      "Read(//c/Users/Cristian/AppData/Local/Temp/**)",
+      "PowerShell(powershell -ExecutionPolicy Bypass -File \"$env:TEMP\\\\cbm_install.ps1\")",
+      "PowerShell(Test-Path \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\"; & \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" --version)",
+      "Read(//c/Users/Cristian/**)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" --help)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" cli index_repository --help 2>&1; Write-Host \"---\"; & \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" cli get_architecture --help 2>&1; Write-Host \"---\"; & \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" cli manage_adr --help 2>&1)",
+      "Read(//c/Users/Cristian/.cache/codebase-memory-mcp/logs/**)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" cli index_repository --repo-path \"c:\\\\Users\\\\Cristian\\\\Desktop\\\\Mis proyectos\\\\gym\" --mode fast)",
+      "PowerShell(& \"$env:USERPROFILE\\\\.local\\\\bin\\\\codebase-memory-mcp.exe\" cli index_repository --repo-path \"c:\\\\Users\\\\Cristian\\\\Desktop\\\\Mis proyectos\\\\gym\" --mode moderate)",
+      "Bash(node --test \"src/**/*.test.js\")",
+      "Bash(curl -s http://localhost:3000/health)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

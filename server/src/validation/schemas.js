@@ -98,6 +98,11 @@ export const removeExerciseQuerySchema = z.object({
   exerciseId: z.string().min(1),
 });
 
+/** Compartir la rutina vigente con otro usuario por su username. */
+export const shareRoutineSchema = z.object({
+  username: usernameSchema,
+});
+
 export const registerSchema = z.object({
   name: z
     .string()

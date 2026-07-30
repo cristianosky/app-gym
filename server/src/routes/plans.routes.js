@@ -17,6 +17,7 @@ import {
   catalogQuerySchema,
   addExerciseSchema,
   removeExerciseQuerySchema,
+  shareRoutineSchema,
 } from '../validation/schemas.js';
 import {
   generateRoutine,
@@ -29,6 +30,12 @@ import {
   addExercise,
   removeExercise,
 } from '../services/routine.service.js';
+import {
+  shareRoutine,
+  listPendingShares,
+  acceptShare,
+  rejectShare,
+} from '../services/routine-share.service.js';
 import { generateNutrition, getCurrentNutrition } from '../services/nutrition.service.js';
 
 export const routineRouter = Router();
@@ -126,6 +133,41 @@ routineRouter.delete(
       ok: true,
       routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
     });
+  }),
+);
+
+routineRouter.get(
+  '/shares/pending',
+  asyncHandler(async (req, res) => {
+    res.json({ ok: true, shares: listPendingShares(req.user.id) });
+  }),
+);
+
+routineRouter.post(
+  '/shares',
+  asyncHandler(async (req, res) => {
+    const { username } = parseBody(shareRoutineSchema, req.body);
+    const resultado = shareRoutine(req.user, username);
+    res.json({ ok: true, ...resultado });
+  }),
+);
+
+routineRouter.post(
+  '/shares/:id/accept',
+  asyncHandler(async (req, res) => {
+    const guardado = acceptShare(req.user.id, req.params.id);
+    res.json({
+      ok: true,
+      routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
+    });
+  }),
+);
+
+routineRouter.post(
+  '/shares/:id/reject',
+  asyncHandler(async (req, res) => {
+    rejectShare(req.user.id, req.params.id);
+    res.json({ ok: true });
   }),
 );
 

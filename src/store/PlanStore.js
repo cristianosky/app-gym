@@ -67,6 +67,7 @@ export function PlanProvider({ children }) {
   const [comidas, setComidas] = useState(null);
   const [progreso, setProgreso] = useState({});
   const [overrides, setOverrides] = useState({});
+  const [solicitudes, setSolicitudes] = useState([]);
 
   const [hidratado, setHidratado] = useState(false);
   const [cargando, setCargando] = useState(false);
@@ -138,9 +139,10 @@ export function PlanProvider({ children }) {
     setCargando(true);
     setError(null);
     try {
-      const [resRutina, resProgreso] = await Promise.all([
+      const [resRutina, resProgreso, resSolicitudes] = await Promise.all([
         endpoints.rutina.obtener(),
         endpoints.progreso.obtener(),
+        endpoints.rutina.solicitudesPendientes().catch(() => null),
       ]);
 
       if (resRutina.routine?.plan) {
@@ -165,6 +167,8 @@ export function PlanProvider({ children }) {
       // El servidor manda solo para los días que la app no tiene todavía:
       // lo marcado en el celular es lo más reciente.
       setProgreso((previo) => ({ ...desdeServidor, ...previo }));
+
+      if (resSolicitudes) setSolicitudes(resSolicitudes.shares ?? []);
     } catch (err) {
       // Sin conexión seguimos con lo que hay guardado: no es un error fatal.
       setError(err.esRed ? null : err.message);
@@ -188,6 +192,7 @@ export function PlanProvider({ children }) {
       setComidas(null);
       setProgreso({});
       setOverrides({});
+      setSolicitudes([]);
       setGenerandoRutina(false);
       detenerPolling();
       AsyncStorage.removeItem(CLAVE_CACHE).catch(() => {});
@@ -425,6 +430,27 @@ export function PlanProvider({ children }) {
     return respuesta;
   }, []);
 
+  /** Envía la rutina vigente a otro usuario por su username. */
+  const compartirRutina = useCallback(async (username) => endpoints.rutina.compartir(username), []);
+
+  /** Acepta una solicitud recibida: la rutina compartida pasa a ser la vigente. */
+  const aceptarSolicitud = useCallback(async (shareId) => {
+    const respuesta = await endpoints.rutina.aceptarSolicitud(shareId);
+    if (respuesta.routine?.plan) {
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+    }
+    setSolicitudes((previo) => previo.filter((s) => s.id !== shareId));
+    return respuesta;
+  }, []);
+
+  /** Rechaza una solicitud recibida, sin tocar la rutina vigente. */
+  const rechazarSolicitud = useCallback(async (shareId) => {
+    const respuesta = await endpoints.rutina.rechazarSolicitud(shareId);
+    setSolicitudes((previo) => previo.filter((s) => s.id !== shareId));
+    return respuesta;
+  }, []);
+
   /** Vuelve a pedirle la rutina a la IA con el perfil actual. */
   const regenerarRutina = useCallback(async () => {
     setCargando(true);
@@ -552,6 +578,10 @@ export function PlanProvider({ children }) {
       catalogoPara,
       agregarEjercicio,
       quitarEjercicio,
+      solicitudes,
+      compartirRutina,
+      aceptarSolicitud,
+      rechazarSolicitud,
       cargarComidas,
       descargar,
       weekStats,
@@ -562,6 +592,7 @@ export function PlanProvider({ children }) {
       getDay, getDayPlan, toggleExercise, marcarEjercicio, completeDay, skipDay, resetDay,
       regenerarRutina, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
       catalogoPara, agregarEjercicio, quitarEjercicio,
+      solicitudes, compartirRutina, aceptarSolicitud, rechazarSolicitud,
       cargarComidas, descargar, weekStats, streak,
     ],
   );

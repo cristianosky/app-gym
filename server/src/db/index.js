@@ -75,6 +75,18 @@ const MIGRATIONS = [
   );
   CREATE INDEX idx_chat_user ON chat_messages(user_id, created_at);
   `,
+  `
+  CREATE TABLE routine_shares (
+    id            TEXT PRIMARY KEY,
+    from_user_id  TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    to_user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan          TEXT NOT NULL,
+    status        TEXT NOT NULL DEFAULT 'pending',
+    created_at    INTEGER NOT NULL,
+    resolved_at   INTEGER
+  );
+  CREATE INDEX idx_routine_shares_to ON routine_shares(to_user_id, status);
+  `,
 ];
 
 function runMigrations() {

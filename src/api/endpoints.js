@@ -37,6 +37,10 @@ export const rutina = {
   agregarEjercicio: (day, exerciseId) => api.post('/api/routine/exercise', { day, exerciseId }),
   quitarEjercicio: (day, exerciseId) =>
     api.delete(`/api/routine/exercise?day=${day}&exerciseId=${encodeURIComponent(exerciseId)}`),
+  compartir: (username) => api.post('/api/routine/shares', { username }),
+  solicitudesPendientes: () => api.get('/api/routine/shares/pending'),
+  aceptarSolicitud: (id) => api.post(`/api/routine/shares/${id}/accept`),
+  rechazarSolicitud: (id) => api.post(`/api/routine/shares/${id}/reject`),
 };
 
 export const comidas = {

@@ -12,6 +12,8 @@ import Icon from '../components/Icon';
 import SinRutina from '../components/SinRutina';
 import ExerciseDetailModal from '../components/ExerciseDetailModal';
 import AddExerciseModal from '../components/AddExerciseModal';
+import ShareRoutineModal from '../components/ShareRoutineModal';
+import SharedRoutineRequests from '../components/SharedRoutineRequests';
 
 const DAY_NAMES = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
 
@@ -22,6 +24,7 @@ export default function WeekScreen() {
   const [open, setOpen] = useState(todayIdx);
   const [detalle, setDetalle] = useState(null);
   const [agregandoDia, setAgregandoDia] = useState(null);
+  const [compartiendo, setCompartiendo] = useState(false);
 
   if (!rutina) return <SinRutina />;
 
@@ -30,10 +33,24 @@ export default function WeekScreen() {
   return (
     <>
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Su semana</Text>
-      <Text style={styles.subtitle}>
-        {rutina.nombre} · {diasEntreno} {diasEntreno === 1 ? 'día' : 'días'} de entrenamiento
-      </Text>
+      <View style={styles.headerRow}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.h1}>Su semana</Text>
+          <Text style={styles.subtitle}>
+            {rutina.nombre} · {diasEntreno} {diasEntreno === 1 ? 'día' : 'días'} de entrenamiento
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => setCompartiendo(true)}
+          style={({ pressed }) => [styles.shareBtn, pressed && styles.shareBtnPressed]}
+          accessibilityRole="button"
+          accessibilityLabel="Compartir rutina"
+        >
+          <Icon name="share-social-outline" size={22} color={colors.primary} />
+        </Pressable>
+      </View>
+
+      <SharedRoutineRequests />
 
       {rutina.dias.map((plan) => {
         const idx = plan.day;
@@ -139,6 +156,7 @@ export default function WeekScreen() {
       onClose={() => setAgregandoDia(null)}
       onAdded={() => setAgregandoDia(null)}
     />
+    <ShareRoutineModal visible={compartiendo} onClose={() => setCompartiendo(false)} />
     </>
   );
 }
@@ -162,8 +180,18 @@ function StatusDot({ status }) {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   h1: { color: colors.text, fontSize: font.h1, fontFamily: family.display },
   subtitle: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, marginBottom: spacing.lg },
+  shareBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: alpha(colors.primary, 0.12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareBtnPressed: { opacity: 0.7 },
 
   card: { backgroundColor: colors.surface, borderRadius: radius.md, marginBottom: spacing.md, borderWidth: 1, borderColor: colors.border, overflow: 'hidden', ...shadow.card },
   cardHead: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, minHeight: 44 },
