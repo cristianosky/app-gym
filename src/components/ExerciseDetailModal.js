@@ -14,6 +14,7 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, Image, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, alpha } from '../theme';
+import { API_URL } from '../config';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
 import VideoPlayer from './VideoPlayer';
@@ -41,7 +42,7 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
   const accent = colors[exercise.group] || colors.primary;
   const videoLocal = getLocalVideo(exercise.localVideo);
   const gifLocal = getLocalGif(exercise.id);
-  const hayEjemplo = Boolean(videoLocal || gifLocal || exercise.video);
+  const hayEjemplo = Boolean(videoLocal || gifLocal || exercise.gifUrl || exercise.video);
   const sePuedeCambiar = Boolean(day) && !exercise.isWarmup && !exercise.isStretch;
 
   const cerrar = () => {
@@ -80,6 +81,10 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
               <View style={styles.videoHero}>
                 <Image source={gifLocal.fuente} style={styles.gifHero} resizeMode="cover" />
               </View>
+            ) : exercise.gifUrl ? (
+              <View style={styles.videoHero}>
+                <Image source={{ uri: `${API_URL}${exercise.gifUrl}` }} style={styles.gifHero} resizeMode="cover" />
+              </View>
             ) : mostrarVideo ? (
               <View style={styles.videoWrap}>
                 <VideoPlayer videoId={exercise.video} query={`${exercise.name} técnica gimnasio`} />
@@ -90,7 +95,7 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
               </View>
             )}
 
-            {!videoLocal && !gifLocal && !mostrarVideo && (
+            {!videoLocal && !gifLocal && !exercise.gifUrl && !mostrarVideo && (
               <Pressable
                 onPress={() => setMostrarVideo(true)}
                 accessibilityRole="button"
@@ -165,29 +170,35 @@ export default function ExerciseDetailModal({ exercise, day, visible, onClose })
               />
             ) : null}
 
-            <Section title="Cómo se hace" accent={accent}>
-              {exercise.howto?.map((paso, i) => (
-                <View key={i} style={styles.stepRow}>
-                  <View style={[styles.stepNum, { backgroundColor: accent }]}>
-                    <Text style={styles.stepNumText}>{i + 1}</Text>
+            {exercise.howto?.length > 0 && (
+              <Section title="Cómo se hace" accent={accent}>
+                {exercise.howto.map((paso, i) => (
+                  <View key={i} style={styles.stepRow}>
+                    <View style={[styles.stepNum, { backgroundColor: accent }]}>
+                      <Text style={styles.stepNumText}>{i + 1}</Text>
+                    </View>
+                    <Text style={styles.stepText}>{paso}</Text>
                   </View>
-                  <Text style={styles.stepText}>{paso}</Text>
-                </View>
-              ))}
-            </Section>
+                ))}
+              </Section>
+            )}
 
-            <Section title="Músculos que trabaja" accent={accent} icon="body-outline">
-              <Text style={styles.body}>{exercise.muscles}</Text>
-            </Section>
+            {exercise.muscles ? (
+              <Section title="Músculos que trabaja" accent={accent} icon="body-outline">
+                <Text style={styles.body}>{exercise.muscles}</Text>
+              </Section>
+            ) : null}
 
-            <Section title="Errores comunes" accent={colors.danger} icon="alert-circle-outline">
-              {exercise.errors?.map((err, i) => (
-                <View key={i} style={styles.errRow}>
-                  <Icon name="close" size={16} color={colors.danger} style={styles.errIcon} />
-                  <Text style={styles.body}>{err}</Text>
-                </View>
-              ))}
-            </Section>
+            {exercise.errors?.length > 0 && (
+              <Section title="Errores comunes" accent={colors.danger} icon="alert-circle-outline">
+                {exercise.errors.map((err, i) => (
+                  <View key={i} style={styles.errRow}>
+                    <Icon name="close" size={16} color={colors.danger} style={styles.errIcon} />
+                    <Text style={styles.body}>{err}</Text>
+                  </View>
+                ))}
+              </Section>
+            )}
 
             {exercise.tips ? (
               <Section title="Consejo" accent={colors.warning} icon="bulb-outline">

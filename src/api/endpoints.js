@@ -2,7 +2,7 @@
  * Todas las llamadas a la API, en un solo sitio.
  * Las pantallas nunca escriben rutas a mano.
  */
-import { api } from './client';
+import { api, uploadBinary } from './client';
 import { TIMEOUTS } from '../config';
 
 export const auth = {
@@ -27,6 +27,7 @@ export const perfil = {
 export const rutina = {
   obtener: () => api.get('/api/routine'),
   generar: () => api.post('/api/routine/generate', undefined, { timeout: TIMEOUTS.ia }),
+  crearDesdeCero: () => api.post('/api/routine/blank'),
   actualizarDias: (trainingDays) => api.patch('/api/routine/days', { trainingDays }),
   reordenar: (order) => api.patch('/api/routine/order', { order }),
   alternativas: (day, exerciseId) =>
@@ -37,6 +38,8 @@ export const rutina = {
   agregarEjercicio: (day, exerciseId) => api.post('/api/routine/exercise', { day, exerciseId }),
   quitarEjercicio: (day, exerciseId) =>
     api.delete(`/api/routine/exercise?day=${day}&exerciseId=${encodeURIComponent(exerciseId)}`),
+  crearEjercicioPropio: (name, group, equipment, gifUrl) =>
+    api.post('/api/routine/exercise/custom', { name, group, equipment, gifUrl }),
   compartir: (username) => api.post('/api/routine/shares', { username }),
   solicitudesPendientes: () => api.get('/api/routine/shares/pending'),
   aceptarSolicitud: (id) => api.post(`/api/routine/shares/${id}/accept`),
@@ -58,4 +61,12 @@ export const asistente = {
 export const progreso = {
   obtener: () => api.get('/api/progress'),
   sincronizar: (days) => api.put('/api/progress', { days }),
+};
+
+export const medios = {
+  /**
+   * Sube un video (Blob) y devuelve el GIF convertido: { gif: { url, bytes, ... } }.
+   * El servidor solo acepta video; cualquier otro formato responde con error.
+   */
+  videoAGif: (blob, contentType) => uploadBinary('/api/media/gif', blob, { contentType }),
 };

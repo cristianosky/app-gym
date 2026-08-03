@@ -30,42 +30,30 @@ export function getToken() {
 }
 
 /**
- * Hace una petición a la API.
- * @param {string} path ruta relativa, p. ej. '/api/routine'
- * @param {{method?: string, body?: object, timeout?: number, auth?: boolean}} opciones
+ * Arma la URL absoluta a partir de la base y la ruta relativa.
+ * Se usa `new URL` en vez de concatenar: si la base o la ruta vinieran mal,
+ * revienta aquí con un mensaje claro en lugar de pedir "[object Object]/api/...".
  */
-export async function request(path, { method = 'GET', body, timeout = TIMEOUTS.normal, auth = true } = {}) {
-  // Se arma la URL con `new URL` en vez de concatenar: si la base o la ruta
-  // vinieran mal, revienta aquí con un mensaje claro en lugar de mandar una
-  // petición a una dirección absurda tipo "[object Object]/api/...".
-  let url;
+function construirUrl(path) {
   try {
     // Se le quita la barra inicial a la ruta para que no borre un posible
     // prefijo de la URL base (p. ej. https://servidor.com/gym).
-    url = new URL(String(path).replace(/^\/+/, ''), `${API_URL}/`).toString();
+    return new URL(String(path).replace(/^\/+/, ''), `${API_URL}/`).toString();
   } catch {
     throw new ApiError(
       `La dirección del servidor no es válida (base "${API_URL}", ruta "${path}"). ` +
         'Revise "extra.apiUrl" en app.json.',
     );
   }
+}
 
+/** `fetch` con tiempo de espera y traducción de los errores de red. */
+async function fetchConTimeout(url, opciones, timeout) {
   const controlador = new AbortController();
   const temporizador = setTimeout(() => controlador.abort(), timeout);
-
-  let respuesta;
   try {
-    respuesta = await fetch(url, {
-      method,
-      signal: controlador.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(auth && tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {}),
-      },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
+    return await fetch(url, { ...opciones, signal: controlador.signal });
   } catch (error) {
-    clearTimeout(temporizador);
     if (error.name === 'AbortError') {
       throw new ApiError('La conexión tardó demasiado. Revise su internet e intente de nuevo.', { esRed: true });
     }
@@ -76,12 +64,15 @@ export async function request(path, { method = 'GET', body, timeout = TIMEOUTS.n
   } finally {
     clearTimeout(temporizador);
   }
+}
 
+/** Lee la respuesta como JSON y lanza ApiError si el estado no es 2xx. */
+async function procesarRespuesta(respuesta) {
   let datos = null;
   try {
     datos = await respuesta.json();
   } catch {
-    // Respuesta sin JSON: se trata más abajo según el código.
+    // Respuesta sin JSON: se trata según el código.
   }
 
   if (!respuesta.ok) {
@@ -90,8 +81,54 @@ export async function request(path, { method = 'GET', body, timeout = TIMEOUTS.n
       campos: datos?.campos ?? null,
     });
   }
-
   return datos;
+}
+
+/**
+ * Hace una petición a la API.
+ * @param {string} path ruta relativa, p. ej. '/api/routine'
+ * @param {{method?: string, body?: object, timeout?: number, auth?: boolean}} opciones
+ */
+export async function request(path, { method = 'GET', body, timeout = TIMEOUTS.normal, auth = true } = {}) {
+  const url = construirUrl(path);
+  const respuesta = await fetchConTimeout(
+    url,
+    {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(auth && tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    },
+    timeout,
+  );
+  return procesarRespuesta(respuesta);
+}
+
+/**
+ * Sube un archivo binario (p. ej. un video) como cuerpo crudo de la petición.
+ * No usa JSON: el servidor lo recibe con `express.raw` y decide según el
+ * Content-Type. Devuelve el JSON de respuesta.
+ * @param {string} path ruta relativa, p. ej. '/api/media/gif'
+ * @param {Blob|ArrayBuffer|Uint8Array} data contenido del archivo
+ * @param {{contentType?: string, timeout?: number, auth?: boolean}} opciones
+ */
+export async function uploadBinary(path, data, { contentType = 'application/octet-stream', timeout = TIMEOUTS.upload, auth = true } = {}) {
+  const url = construirUrl(path);
+  const respuesta = await fetchConTimeout(
+    url,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': contentType,
+        ...(auth && tokenActual ? { Authorization: `Bearer ${tokenActual}` } : {}),
+      },
+      body: data,
+    },
+    timeout,
+  );
+  return procesarRespuesta(respuesta);
 }
 
 export const api = {

@@ -27,7 +27,9 @@ authRouter.post(
     res.status(201).json({ ok: true, user, token, generandoRutina: true });
 
     const completo = userRepo.findById(user.id);
-    generateRoutine(completo).catch((err) =>
+    // skipIfExists: si la persona arma su propia rutina (p. ej. desde cero)
+    // mientras Gemini responde, esa gana y no se pisa con la generada aquí.
+    generateRoutine(completo, { skipIfExists: true }).catch((err) =>
       console.error('[registro] Error generando rutina en background:', err?.message ?? err),
     );
   }),

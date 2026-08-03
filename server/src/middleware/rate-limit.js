@@ -44,6 +44,16 @@ export const generateLimiter = rateLimit({
   message: mensaje('Ha generado planes muchas veces seguidas. Espere un rato antes de volver a intentarlo.'),
 });
 
+/** Subir videos para convertir a GIF: la conversión con ffmpeg cuesta CPU. */
+export const uploadLimiter = rateLimit({
+  windowMs: 15 * 60_000,
+  limit: env.isProduction ? 20 : 200,
+  keyGenerator: porUsuarioOIp,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: mensaje('Subió muchos videos seguidos. Espere un momento antes de intentar de nuevo.'),
+});
+
 /** Chat: más permisivo, pero con techo. */
 export const chatLimiter = rateLimit({
   windowMs: 10 * 60_000,

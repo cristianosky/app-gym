@@ -87,6 +87,18 @@ const MIGRATIONS = [
   );
   CREATE INDEX idx_routine_shares_to ON routine_shares(to_user_id, status);
   `,
+  `
+  CREATE TABLE custom_exercises (
+    id            TEXT PRIMARY KEY,
+    user_id       TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name          TEXT NOT NULL,
+    muscle_group  TEXT NOT NULL,
+    equipment     TEXT NOT NULL,
+    gif_url       TEXT NOT NULL,
+    created_at    INTEGER NOT NULL
+  );
+  CREATE INDEX idx_custom_exercises_user ON custom_exercises(user_id, created_at DESC);
+  `,
 ];
 
 function runMigrations() {

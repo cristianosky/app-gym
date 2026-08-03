@@ -2,6 +2,8 @@
  * Aplicación Express: middlewares globales y montaje de rutas.
  * Se separa de `index.js` para poder levantarla en las pruebas sin abrir puerto.
  */
+import fs from 'node:fs';
+import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -14,6 +16,7 @@ import { routineRouter, nutritionRouter } from './routes/plans.routes.js';
 import { chatRouter } from './routes/chat.routes.js';
 import { progressRouter } from './routes/progress.routes.js';
 import { optionsRouter } from './routes/options.routes.js';
+import { mediaRouter } from './routes/media.routes.js';
 
 export function createApp() {
   const app = express();
@@ -39,6 +42,19 @@ export function createApp() {
   app.use('/api/nutrition', nutritionRouter);
   app.use('/api/chat', chatRouter);
   app.use('/api/progress', progressRouter);
+  app.use('/api/media', mediaRouter);
+
+  // GIF generados a partir de los videos subidos. Se sirven como estáticos con
+  // CORP cross-origin para que el <img> de la app web (otro origen) los cargue.
+  const gifsDir = path.join(env.uploadsDir, 'gifs');
+  fs.mkdirSync(gifsDir, { recursive: true });
+  app.use(
+    '/media/gifs',
+    express.static(gifsDir, {
+      maxAge: '7d',
+      setHeaders: (res) => res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin'),
+    }),
+  );
 
   app.use(notFoundHandler);
   app.use(errorHandler);

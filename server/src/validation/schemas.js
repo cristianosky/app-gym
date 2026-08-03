@@ -98,6 +98,28 @@ export const removeExerciseQuerySchema = z.object({
   exerciseId: z.string().min(1),
 });
 
+/** Grupos musculares y equipos válidos para un ejercicio propio. */
+const MUSCLE_GROUP_IDS = ['pecho', 'espalda', 'pierna', 'hombro', 'brazo', 'core', 'cardio'];
+const EQUIPMENT_IDS = ['maquina', 'barra', 'mancuernas', 'polea', 'peso-corporal', 'cardio', 'ninguno'];
+
+/**
+ * Crear un ejercicio propio. `gifUrl` debe venir de `/api/media/gif`
+ * (POST /api/media/gif), así que se valida que tenga esa forma exacta.
+ */
+export const customExerciseSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'Escriba el nombre del ejercicio.')
+    .max(60, 'El nombre no puede pasar de 60 caracteres.'),
+  group: z.enum(MUSCLE_GROUP_IDS),
+  equipment: z.enum(EQUIPMENT_IDS),
+  gifUrl: z
+    .string()
+    .trim()
+    .regex(/^\/media\/gifs\/[\w-]+\.gif$/, 'El video no se subió correctamente. Intente de nuevo.'),
+});
+
 /** Compartir la rutina vigente con otro usuario por su username. */
 export const shareRoutineSchema = z.object({
   username: usernameSchema,

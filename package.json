@@ -7,7 +7,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "gifs": "node scripts/generar-gifs.mjs"
+    "gifs": "node scripts/generar-gifs.mjs",
+    "videos:gif": "node scripts/video-a-gif.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/barlow": "^0.4.1",

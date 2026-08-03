@@ -39,3 +39,7 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# videos fuente de ejercicios: solo se versionan los GIF resultantes (assets/gifs)
+/assets/videos-ejercicios/*
+!/assets/videos-ejercicios/README.md

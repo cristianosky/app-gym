@@ -27,6 +27,10 @@ const schema = z.object({
 
   DATABASE_PATH: z.string().min(1).default('./data/app.db'),
   CORS_ORIGIN: z.string().min(1).default('*'),
+
+  // Subida de videos que se convierten a GIF (ver services/media.service.js).
+  UPLOADS_DIR: z.string().min(1).default('./uploads'),
+  MAX_UPLOAD_MB: z.coerce.number().int().positive().max(200).default(30),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -53,4 +57,8 @@ export const env = Object.freeze({
     ? raw.DATABASE_PATH
     : path.resolve(process.cwd(), raw.DATABASE_PATH),
   corsOrigins: raw.CORS_ORIGIN === '*' ? '*' : raw.CORS_ORIGIN.split(',').map((s) => s.trim()),
+  uploadsDir: path.isAbsolute(raw.UPLOADS_DIR)
+    ? raw.UPLOADS_DIR
+    : path.resolve(process.cwd(), raw.UPLOADS_DIR),
+  maxUploadMb: raw.MAX_UPLOAD_MB,
 });

@@ -104,4 +104,6 @@ export const TIMEOUTS = {
   normal: 15_000,
   // Generar rutina o plan de comidas implica esperar a la IA.
   ia: 90_000,
+  // Subir un video y esperar la conversión a GIF en el servidor.
+  upload: 120_000,
 };

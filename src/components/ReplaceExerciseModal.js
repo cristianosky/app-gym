@@ -37,7 +37,7 @@ export default function ReplaceExerciseModal({ visible, day, exercise, onClose, 
   // Con ejemplo visual primero; si ninguno tiene, mejor mostrarlos todos que
   // dejar la lista vacía.
   const opciones = useMemo(() => {
-    const conEjemplo = alternativas.filter((alt) => getLocalVideo(alt.localVideo) || getLocalGif(alt.id));
+    const conEjemplo = alternativas.filter((alt) => getLocalVideo(alt.localVideo) || getLocalGif(alt.id) || alt.gifUrl);
     return conEjemplo.length > 0 ? conEjemplo : alternativas;
   }, [alternativas]);
 

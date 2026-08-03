@@ -13,6 +13,7 @@ import Icon from '../components/Icon';
 import EditProfileModal from './EditProfileModal';
 import ChangePinModal from './ChangePinModal';
 import ConfirmModal from '../components/ConfirmModal';
+import VideoGifUploader from '../components/VideoGifUploader';
 import { weekdayIndex } from '../utils/dates';
 
 const DAY_LETTER = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -103,13 +104,15 @@ export default function ProgressScreen() {
  * acción que la gente busca cuando cambia de peso o de objetivo.
  */
 function SeccionCuenta() {
-  const { regenerarRutina, cargando, origenRutina } = usePlan();
+  const { regenerarRutina, crearRutinaDesdeCero, cargando, origenRutina } = usePlan();
   const { user, cerrarSesion } = useAuth();
   const [error, setError] = useState(null);
   const [editandoPerfil, setEditandoPerfil] = useState(false);
   const [cambiandoPin, setCambiandoPin] = useState(false);
   const [confirmandoSalida, setConfirmandoSalida] = useState(false);
   const [confirmandoRearmar, setConfirmandoRearmar] = useState(false);
+  const [confirmandoDesdeCero, setConfirmandoDesdeCero] = useState(false);
+  const [subiendoVideo, setSubiendoVideo] = useState(false);
 
   const regenerar = () => setConfirmandoRearmar(true);
 
@@ -118,6 +121,16 @@ function SeccionCuenta() {
     setError(null);
     try {
       await regenerarRutina();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const confirmarDesdeCero = async () => {
+    setConfirmandoDesdeCero(false);
+    setError(null);
+    try {
+      await crearRutinaDesdeCero();
     } catch (err) {
       setError(err.message);
     }
@@ -147,6 +160,19 @@ function SeccionCuenta() {
           onPress={regenerar}
           loading={cargando}
         />
+        <Button
+          label="Armar una rutina desde cero"
+          icon="create-outline"
+          variant="secondary"
+          onPress={() => setConfirmandoDesdeCero(true)}
+          disabled={cargando}
+        />
+        <Button
+          label="Subir video → GIF"
+          icon="videocam-outline"
+          variant="secondary"
+          onPress={() => setSubiendoVideo(true)}
+        />
         <Button label="Editar mi perfil" icon="person-outline" variant="secondary" onPress={() => setEditandoPerfil(true)} />
         <Button label="Cambiar mi PIN" icon="lock-closed-outline" variant="secondary" onPress={() => setCambiandoPin(true)} />
         <Button label="Cerrar sesión" icon="log-out-outline" variant="ghost" onPress={salir} />
@@ -156,6 +182,7 @@ function SeccionCuenta() {
 
       <EditProfileModal visible={editandoPerfil} onClose={() => setEditandoPerfil(false)} />
       <ChangePinModal visible={cambiandoPin} onClose={() => setCambiandoPin(false)} />
+      <VideoGifUploader visible={subiendoVideo} onClose={() => setSubiendoVideo(false)} />
       <ConfirmModal
         visible={confirmandoSalida}
         onClose={() => setConfirmandoSalida(false)}
@@ -178,6 +205,16 @@ function SeccionCuenta() {
         title="Armar la rutina de nuevo"
         message="El asistente le va a armar una rutina nueva con sus datos actuales. La que tiene ahora se reemplaza. ¿Sigue?"
         confirmText="Armar de nuevo"
+        cancelText="Cancelar"
+      />
+      <ConfirmModal
+        visible={confirmandoDesdeCero}
+        onClose={() => setConfirmandoDesdeCero(false)}
+        onConfirm={confirmarDesdeCero}
+        icon="clipboard-edit-outline"
+        title="Armar una rutina desde cero"
+        message="Va a empezar con una rutina vacía y usted le agrega los ejercicios en cada día desde la vista semanal. La que tiene ahora se reemplaza. ¿Sigue?"
+        confirmText="Empezar desde cero"
         cancelText="Cancelar"
       />
     </View>

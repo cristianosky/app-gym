@@ -18,9 +18,11 @@ import {
   addExerciseSchema,
   removeExerciseQuerySchema,
   shareRoutineSchema,
+  customExerciseSchema,
 } from '../validation/schemas.js';
 import {
   generateRoutine,
+  createBlankRoutine,
   getCurrentRoutine,
   syncRestDays,
   reorderRoutine,
@@ -29,6 +31,7 @@ import {
   getCatalogForDay,
   addExercise,
   removeExercise,
+  createCustomExercise,
 } from '../services/routine.service.js';
 import {
   shareRoutine,
@@ -55,6 +58,14 @@ routineRouter.post(
   asyncHandler(async (req, res) => {
     const { plan, source, aviso } = await generateRoutine(req.user);
     res.json({ ok: true, routine: { plan, source, createdAt: Date.now() }, aviso });
+  }),
+);
+
+routineRouter.post(
+  '/blank',
+  asyncHandler(async (req, res) => {
+    const { plan, source, createdAt } = createBlankRoutine(req.user);
+    res.json({ ok: true, routine: { plan, source, createdAt } });
   }),
 );
 
@@ -121,6 +132,15 @@ routineRouter.post(
       ok: true,
       routine: { plan: guardado.plan, source: guardado.source, createdAt: guardado.createdAt },
     });
+  }),
+);
+
+routineRouter.post(
+  '/exercise/custom',
+  asyncHandler(async (req, res) => {
+    const datos = parseBody(customExerciseSchema, req.body);
+    const exercise = createCustomExercise(req.user.id, datos);
+    res.json({ ok: true, exercise });
   }),
 );
 

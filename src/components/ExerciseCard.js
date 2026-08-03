@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family, shadow, alpha } from '../theme';
+import { API_URL } from '../config';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
 import LocalVideo from './LocalVideo';
 import Icon from './Icon';
@@ -38,6 +39,8 @@ export default function ExerciseCard({ exercise, done, onToggle, onPress }) {
           <LocalVideo source={localGif.fuente} controls={false} contentFit="cover" />
         ) : localGif ? (
           <Image source={localGif.fuente} style={styles.gif} resizeMode="cover" />
+        ) : exercise.gifUrl ? (
+          <Image source={{ uri: `${API_URL}${exercise.gifUrl}` }} style={styles.gif} resizeMode="cover" />
         ) : (
           <ExerciseIllustration kind={exercise.illu} accent={accent} size={88} />
         )}

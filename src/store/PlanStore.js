@@ -420,6 +420,16 @@ export function PlanProvider({ children }) {
     return respuesta;
   }, []);
 
+  /**
+   * Crea un ejercicio propio (nombre, grupo, equipo y el GIF ya subido) para
+   * usarlo al armar la rutina a mano. No lo agrega a ningún día por sí solo:
+   * eso se hace después con `agregarEjercicio`.
+   */
+  const crearEjercicioPropio = useCallback(
+    async (name, group, equipment, gifUrl) => endpoints.rutina.crearEjercicioPropio(name, group, equipment, gifUrl),
+    [],
+  );
+
   /** Quita un ejercicio del día, sin tocar la IA. */
   const quitarEjercicio = useCallback(async (day, exerciseId) => {
     const respuesta = await endpoints.rutina.quitarEjercicio(day, exerciseId);
@@ -467,6 +477,29 @@ export function PlanProvider({ children }) {
       setCargando(false);
     }
   }, []);
+
+  /**
+   * Crea una rutina en blanco para armarla a mano, sin IA. Reemplaza la
+   * vigente por un esqueleto con los días de entreno del perfil, listo para
+   * que la persona le agregue ejercicios desde la vista semanal.
+   */
+  const crearRutinaDesdeCero = useCallback(async () => {
+    setCargando(true);
+    setError(null);
+    try {
+      const respuesta = await endpoints.rutina.crearDesdeCero();
+      setRutina(normalizarPlan(respuesta.routine.plan));
+      setOrigenRutina(respuesta.routine.source);
+      setGenerandoRutina(false);
+      detenerPolling();
+      return respuesta;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setCargando(false);
+    }
+  }, [detenerPolling]);
 
   /** Descarga el plan de comidas; lo genera si todavía no existe. */
   const cargarComidas = useCallback(async ({ forzar = false } = {}) => {
@@ -571,12 +604,14 @@ export function PlanProvider({ children }) {
       skipDay,
       resetDay,
       regenerarRutina,
+      crearRutinaDesdeCero,
       sincronizarDiasDescanso,
       reordenarRutina,
       alternativasPara,
       reemplazarEjercicio,
       catalogoPara,
       agregarEjercicio,
+      crearEjercicioPropio,
       quitarEjercicio,
       solicitudes,
       compartirRutina,
@@ -590,8 +625,8 @@ export function PlanProvider({ children }) {
     [
       rutina, origenRutina, comidas, hidratado, cargando, error, generandoRutina, user,
       getDay, getDayPlan, toggleExercise, marcarEjercicio, completeDay, skipDay, resetDay,
-      regenerarRutina, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
-      catalogoPara, agregarEjercicio, quitarEjercicio,
+      regenerarRutina, crearRutinaDesdeCero, sincronizarDiasDescanso, reordenarRutina, alternativasPara, reemplazarEjercicio,
+      catalogoPara, agregarEjercicio, crearEjercicioPropio, quitarEjercicio,
       solicitudes, compartirRutina, aceptarSolicitud, rechazarSolicitud,
       cargarComidas, descargar, weekStats, streak,
     ],

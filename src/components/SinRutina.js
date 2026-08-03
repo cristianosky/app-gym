@@ -14,9 +14,10 @@ import Button from './Button';
 import { usePlan } from '../store/PlanStore';
 
 export default function SinRutina() {
-  const { regenerarRutina, descargar, cargando, generandoRutina } = usePlan();
+  const { regenerarRutina, crearRutinaDesdeCero, descargar, cargando, generandoRutina } = usePlan();
   const [error, setError] = useState(null);
   const [comprobando, setComprobando] = useState(false);
+  const [armandoManual, setArmandoManual] = useState(false);
 
   const reintentar = async () => {
     setError(null);
@@ -25,6 +26,18 @@ export default function SinRutina() {
       await regenerarRutina();
     } catch (err) {
       setError(err.message);
+    }
+  };
+
+  const armarDesdeCero = async () => {
+    setError(null);
+    setArmandoManual(true);
+    try {
+      await crearRutinaDesdeCero();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setArmandoManual(false);
     }
   };
 
@@ -66,16 +79,29 @@ export default function SinRutina() {
       <Text style={styles.title}>Todavía no tiene rutina</Text>
       <Text style={styles.text}>
         {error ??
-          'No pudimos traer su plan. Revise que tenga internet y toque el botón para que el asistente se la arme.'}
+          'Puede dejar que el asistente le arme una a su medida, o crear la suya desde cero y agregar los ejercicios usted mismo.'}
       </Text>
 
       <Button
-        label="Armar mi rutina"
+        label="Armar mi rutina con IA"
         icon="sparkles"
         onPress={reintentar}
         loading={cargando}
+        disabled={armandoManual}
         style={styles.boton}
       />
+      <Button
+        label="Crear rutina desde cero"
+        icon="create-outline"
+        variant="secondary"
+        onPress={armarDesdeCero}
+        loading={armandoManual}
+        disabled={cargando}
+        style={styles.botonSecundario}
+      />
+      <Text style={styles.pie}>
+        La rutina desde cero entra vacía: usted le agrega los ejercicios que quiera en cada día.
+      </Text>
     </View>
   );
 }
@@ -108,5 +134,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   boton: { alignSelf: 'stretch' },
+  botonSecundario: { alignSelf: 'stretch', marginTop: spacing.sm },
+  pie: {
+    color: colors.textFaint,
+    fontSize: font.small,
+    fontFamily: family.body,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginTop: spacing.md,
+  },
   spinner: { marginBottom: spacing.lg },
 });

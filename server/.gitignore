@@ -4,6 +4,8 @@ node_modules/
 # server/src/data/ (el catálogo de ejercicios y las opciones), que es código
 # fuente y sí debe subirse al repo.
 /data/
+# GIF generados desde los videos subidos por los usuarios (contenido en runtime).
+/uploads/
 .env
 .env.local
 *.log

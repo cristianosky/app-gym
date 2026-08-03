@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, Text, Image, Pressable, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors, radius, spacing, font, family } from '../theme';
+import { API_URL } from '../config';
 import Icon from './Icon';
 import LocalVideo from './LocalVideo';
 import ExerciseIllustration from '../illustrations/ExerciseIllustration';
@@ -32,6 +33,8 @@ export default function ExercisePickerRow({ exercise, onPress, disabled, loading
           <LocalVideo source={localGif.fuente} controls={false} contentFit="cover" />
         ) : localGif ? (
           <Image source={localGif.fuente} style={styles.miniaturaImg} resizeMode="cover" />
+        ) : exercise.gifUrl ? (
+          <Image source={{ uri: `${API_URL}${exercise.gifUrl}` }} style={styles.miniaturaImg} resizeMode="cover" />
         ) : (
           <ExerciseIllustration kind={exercise.illu} accent={accent} size={40} />
         )}
@@ -39,7 +42,9 @@ export default function ExercisePickerRow({ exercise, onPress, disabled, loading
 
       <View style={styles.filaTextos}>
         <Text style={styles.filaTitulo} numberOfLines={1}>{exercise.name}</Text>
-        <Text style={styles.filaDesc} numberOfLines={1}>{exercise.muscles}</Text>
+        <Text style={styles.filaDesc} numberOfLines={1}>
+          {exercise.custom ? 'Su ejercicio' : exercise.muscles}
+        </Text>
       </View>
 
       {loading ? (

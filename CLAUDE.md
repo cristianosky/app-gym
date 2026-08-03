@@ -21,10 +21,13 @@ Two independent processes, run separately:
 - Requires Node **>=22.5.0** (uses the built-in experimental `node:sqlite` module — the "ExperimentalWarning" on boot is expected, not a bug)
 - Config comes from `server/.env` (see `server/.env.example`); needs `GEMINI_API_KEY` and `JWT_SECRET`. Without a valid `GEMINI_API_KEY` the server still runs but serves the fallback routine, and chat/meal-plan generation won't respond.
 - SQLite DB lives at `server/data/app.db` (gitignored). Delete it to reset all data.
+- **Subida de video → GIF**: `POST /api/media/gif` (auth, cuerpo binario vía `express.raw`) recibe un video, lo valida con **ffprobe** (contenedor de video + duración real, no solo la extensión — rechaza imágenes aunque mientan el Content-Type) y lo convierte a GIF con **ffmpeg**; el resultado se sirve estático en `/media/gifs/<id>.gif`. Requiere **ffmpeg y ffprobe en el PATH** (también en el VPS para producción). Ajustes en `.env`: `UPLOADS_DIR`, `MAX_UPLOAD_MB`. Los GIF se guardan en `server/uploads/` (gitignored). El cliente sube con `uploadBinary` (ver `src/api/client.js`); la UI está en `src/components/VideoGifUploader.js` (Progreso → Su cuenta), pensada para la web.
 
 ### App (repo root)
 - `npm install`
 - `npm start` (= `expo start`), `npm run android`, `npm run ios`, `npm run web`
+- `npm run gifs` — regenera `src/data/localGifs.js` a partir de lo que haya en `assets/gifs/`.
+- `npm run videos:gif` — convierte los **videos cortos** de `assets/videos-ejercicios/` a GIF optimizado (ffmpeg, paleta en dos pasadas) en `assets/gifs/` y regenera el registro. **Solo acepta video** (mp4/mov/webm/m4v); cualquier otro formato aborta sin convertir nada. El nombre del archivo debe ser el `id` del ejercicio. Requiere **ffmpeg** en el PATH. Ajustes: `GIF_FPS`, `GIF_WIDTH`, `GIF_MAXDUR`.
 - The app auto-discovers the server via the LAN IP Expo serves on; to point at a deployed server set `extra.apiUrl` in `app.json`.
 
 ### Production (this host)

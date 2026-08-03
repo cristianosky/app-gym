@@ -9,6 +9,7 @@ import { Modal, View, Text, TextInput, ScrollView, Pressable, ActivityIndicator,
 import { colors, radius, spacing, font, family } from '../theme';
 import Icon from './Icon';
 import ExercisePickerRow from './ExercisePickerRow';
+import CreateExerciseModal from './CreateExerciseModal';
 import { usePlan } from '../store/PlanStore';
 
 const GROUP_LABEL = {
@@ -24,6 +25,7 @@ export default function AddExerciseModal({ visible, day, onClose, onAdded }) {
   const [agregando, setAgregando] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [error, setError] = useState(null);
+  const [creando, setCreando] = useState(false);
 
   useEffect(() => {
     if (!visible || !day) return;
@@ -64,12 +66,23 @@ export default function AddExerciseModal({ visible, day, onClose, onAdded }) {
   };
 
   return (
+    <>
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <View style={styles.sheet}>
           <View style={styles.handle} />
           <Text style={styles.title}>Agregar ejercicio</Text>
           <Text style={styles.sub}>Entra con series y repeticiones base; luego lo puede ajustar.</Text>
+
+          <Pressable
+            onPress={() => setCreando(true)}
+            accessibilityRole="button"
+            accessibilityLabel="Crear un ejercicio propio con video"
+            style={({ pressed }) => [styles.crearBtn, pressed && { opacity: 0.8 }]}
+          >
+            <Icon set="mci" name="video-plus-outline" size={19} color={colors.primary} />
+            <Text style={styles.crearBtnText}>Crear ejercicio propio con video</Text>
+          </Pressable>
 
           <View style={styles.buscador}>
             <Icon name="search" size={17} color={colors.textFaint} />
@@ -124,6 +137,17 @@ export default function AddExerciseModal({ visible, day, onClose, onAdded }) {
         </View>
       </View>
     </Modal>
+
+    <CreateExerciseModal
+      visible={creando}
+      day={day}
+      onClose={() => setCreando(false)}
+      onCreated={() => {
+        setCreando(false);
+        onAdded?.();
+      }}
+    />
+    </>
   );
 }
 
@@ -141,6 +165,21 @@ const styles = StyleSheet.create({
   handle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border, marginBottom: spacing.md },
   title: { color: colors.text, fontSize: font.h2, fontFamily: family.display, textAlign: 'center', marginBottom: spacing.sm },
   sub: { color: colors.textMuted, fontSize: font.body, fontFamily: family.body, textAlign: 'center', lineHeight: 21, marginBottom: spacing.md },
+
+  crearBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.primary,
+    paddingVertical: spacing.sm + 2,
+    marginBottom: spacing.md,
+    minHeight: 46,
+  },
+  crearBtnText: { color: colors.primary, fontSize: font.small, fontFamily: family.bodyBold },
 
   buscador: {
     flexDirection: 'row',
