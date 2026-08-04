@@ -10,6 +10,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { dayKey, weekdayIndex, currentWeekKeys } from '../utils/dates';
+import { diasOlvidados } from '../utils/progreso';
 import * as endpoints from '../api/endpoints';
 import { useAuth } from './AuthStore';
 
@@ -68,6 +69,10 @@ export function PlanProvider({ children }) {
   const [progreso, setProgreso] = useState({});
   const [overrides, setOverrides] = useState({});
   const [solicitudes, setSolicitudes] = useState([]);
+
+  // Día en curso. Es estado y no un cálculo suelto porque la app puede quedar
+  // abierta cuando cambia la fecha, y ahí es cuando toca cerrar lo de ayer.
+  const [hoyKey, setHoyKey] = useState(() => dayKey());
 
   const [hidratado, setHidratado] = useState(false);
   const [cargando, setCargando] = useState(false);
@@ -347,6 +352,51 @@ export function PlanProvider({ children }) {
     },
     [actualizarProgreso, progreso, overrides],
   );
+
+  /**
+   * Cierra los días ya pasados que quedaron a medias con más de la mitad de
+   * los ejercicios hechos: se entrenó, solo faltó darle a "Completar día", y
+   * dejarlos abiertos rompía la racha sin motivo.
+   *
+   * @returns {string[]} los días que se cerraron.
+   */
+  const autocompletarOlvidados = useCallback(
+    (hoyKey = dayKey()) => {
+      const olvidados = diasOlvidados(progreso, getDayPlan, hoyKey);
+      if (olvidados.length === 0) return [];
+
+      actualizarProgreso((previo) => {
+        const siguiente = { ...previo };
+        for (const key of olvidados) {
+          const planDay = previo[key].planDay;
+          const completed = {};
+          for (const ex of getDayPlan(planDay)?.exercises ?? []) completed[ex.id] = true;
+          siguiente[key] = { planDay, status: 'completed', completed };
+        }
+        return siguiente;
+      });
+
+      return olvidados;
+    },
+    [progreso, getDayPlan, actualizarProgreso],
+  );
+
+  // Vigila el cambio de fecha con la app abierta. Solo repinta cuando el día
+  // de verdad cambia, así que un minuto de intervalo no cuesta nada.
+  useEffect(() => {
+    const id = setInterval(() => {
+      const actual = dayKey();
+      setHoyKey((previo) => (previo === actual ? previo : actual));
+    }, 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Al abrir la app, al bajar el progreso del servidor y al pasar la
+  // medianoche: revisa si quedó algún día sin cerrar.
+  useEffect(() => {
+    if (!hidratado || !autenticado || !rutina) return;
+    autocompletarOlvidados(hoyKey);
+  }, [hidratado, autenticado, rutina, hoyKey, autocompletarOlvidados]);
 
   const resetDay = useCallback(
     (key) => {
